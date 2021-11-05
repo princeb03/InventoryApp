@@ -1,0 +1,88 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using API.DTOs;
+using API.DTOs.AccountDTOs;
+using API.Entities;
+using API.Interfaces;
+using API.Persistence;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
+namespace API.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    [AllowAnonymous]
+    public class AccountsController: ControllerBase
+    {
+        private readonly DataContext _context;
+        private readonly UserManager<AppUser> _userManager;
+        private readonly SignInManager<AppUser> _signInManager;
+        private readonly ITokenService _tokenService;
+        public AccountsController(DataContext context, 
+            UserManager<AppUser> userManager, 
+            SignInManager<AppUser> signInManager,
+            ITokenService tokenService)
+        {
+            _context = context;
+            _userManager = userManager;
+            _signInManager = signInManager;
+            _tokenService = tokenService;
+        }
+
+        [HttpPost("register")]
+        public async Task<ActionResult<UserDto>> Register(RegisterDto newUser)
+        {
+            if (await _userManager.Users.AnyAsync(x => x.Email == newUser.Email))
+            {
+                return BadRequest("E-mail taken");
+            }
+            if (await _userManager.Users.AnyAsync(x => x.UserName == newUser.Username))
+            {
+                return BadRequest("Username taken");
+            }
+            var user = new AppUser
+            {
+                Email = newUser.Email,
+                DisplayName = newUser.DisplayName,
+                UserName = newUser.Username
+            };
+            var result = await _userManager.CreateAsync(user, newUser.Password);
+            if (result.Succeeded)
+            {
+                return new UserDto
+                {
+                    DisplayName = user.DisplayName,
+                    Email = user.Email,
+                    Token = _tokenService.CreateToken(user)
+                };
+            }
+            return BadRequest("Registration failed");
+        }
+
+        [HttpPost("login")]
+        public async Task<ActionResult<UserDto>> Login(LoginDto loginDetails)
+        {
+            var user = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == loginDetails.Email);
+            if (user == null) 
+            {
+                return Unauthorized();
+            }
+            var result = await _signInManager.CheckPasswordSignInAsync(user, loginDetails.Password, false);
+            if (result.Succeeded)
+            {
+                return new UserDto
+                {
+                    DisplayName = user.DisplayName,
+                    Email = user.Email,
+                    Token = _tokenService.CreateToken(user)
+                };
+            }
+            return Unauthorized();
+        }
+    }
+}

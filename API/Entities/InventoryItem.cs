@@ -14,5 +14,6 @@ namespace API.Entities
         public string ItemDescription { get; set; }
         [Required]
         public int TotalStock { get; set; }
+        public ICollection<OrderItem> Orders { get; set; } = new List<OrderItem>();
     }
 }
