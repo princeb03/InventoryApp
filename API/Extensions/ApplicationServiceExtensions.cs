@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using API.Helpers;
 using API.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -27,6 +28,7 @@ namespace API.Extensions
                         .WithOrigins("http://localhost:3000");
                 });
             });
+            services.AddAutoMapper(typeof(MappingProfiles).Assembly);
 
             services.AddSwaggerGen(c =>
             {

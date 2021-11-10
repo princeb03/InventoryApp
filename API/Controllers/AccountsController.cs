@@ -7,6 +7,7 @@ using API.DTOs.AccountDTOs;
 using API.Entities;
 using API.Interfaces;
 using API.Persistence;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -23,15 +24,18 @@ namespace API.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
         private readonly ITokenService _tokenService;
+        private readonly IMapper _mapper;
         public AccountsController(DataContext context, 
             UserManager<AppUser> userManager, 
             SignInManager<AppUser> signInManager,
-            ITokenService tokenService)
+            ITokenService tokenService,
+            IMapper mapper)
         {
             _context = context;
             _userManager = userManager;
             _signInManager = signInManager;
             _tokenService = tokenService;
+            _mapper = mapper;
         }
 
         [HttpPost("register")]
@@ -52,15 +56,7 @@ namespace API.Controllers
                 UserName = newUser.Username
             };
             var result = await _userManager.CreateAsync(user, newUser.Password);
-            if (result.Succeeded)
-            {
-                return new UserDto
-                {
-                    DisplayName = user.DisplayName,
-                    Email = user.Email,
-                    Token = _tokenService.CreateToken(user)
-                };
-            }
+            if (result.Succeeded) return CreateUserDto(user);
             return BadRequest("Registration failed");
         }
 
@@ -73,16 +69,25 @@ namespace API.Controllers
                 return Unauthorized();
             }
             var result = await _signInManager.CheckPasswordSignInAsync(user, loginDetails.Password, false);
-            if (result.Succeeded)
-            {
-                return new UserDto
-                {
-                    DisplayName = user.DisplayName,
-                    Email = user.Email,
-                    Token = _tokenService.CreateToken(user)
-                };
-            }
+            if (result.Succeeded) return CreateUserDto(user);
             return Unauthorized();
+        }
+        
+        [HttpGet]
+        public async Task<ActionResult<List<AppUser>>> GetAllUsers()
+        {
+            var users = await _userManager.Users.ToListAsync();
+            return users;
+        }
+
+        private UserDto CreateUserDto(AppUser user)
+        {
+            return new UserDto
+            {
+                DisplayName = user.DisplayName,
+                Email = user.Email,
+                Token = _tokenService.CreateToken(user)
+            };
         }
     }
 }

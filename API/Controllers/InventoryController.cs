@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using API.DTOs;
+using API.DTOs.InventoryItemDTOs;
 using API.Entities;
 using API.Persistence;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,40 +17,45 @@ namespace API.Controllers
     public class InventoryController: ControllerBase
     {
         private readonly DataContext _context;
-        public InventoryController(DataContext context)
+        private readonly IMapper _mapper;
+        public InventoryController(DataContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
+
         [HttpGet]
         public async Task<IActionResult> GetAll() 
         {
-            return Ok(await _context.Inventory.ToListAsync());
+            var allItems = await _context.Inventory.ToListAsync();
+            var itemsToReturn = _mapper.Map<List<InventoryItemDto>>(allItems);
+            return Ok(itemsToReturn);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(Guid id) 
         {
-            return Ok(await _context.Inventory.FindAsync(id));
+            var item = await _context.Inventory.FindAsync(id);
+            if (item == null) return NotFound();
+            return Ok(item);
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateItem(InventoryItem newItem)
+        public async Task<IActionResult> CreateItem(CreateInventoryItemDto newItem)
         {
-            _context.Inventory.Add(newItem);
+            var item = _mapper.Map<InventoryItem>(newItem);
+            _context.Inventory.Add(item);
             await _context.SaveChangesAsync();
             return NoContent();
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateItem(InventoryItemDto item, Guid id)
+        public async Task<IActionResult> UpdateItem(CreateInventoryItemDto item, Guid id)
         {
             var itemToUpdate = await _context.Inventory.FindAsync(id);
-            itemToUpdate.ItemName = item.ItemName;
-            itemToUpdate.ItemDescription = item.ItemDescription;
-            itemToUpdate.TotalStock = item.TotalStock;
-
+            if (itemToUpdate == null) return NotFound();
+            _mapper.Map(item, itemToUpdate);
             await _context.SaveChangesAsync();
-            
             return NoContent();
         }
 

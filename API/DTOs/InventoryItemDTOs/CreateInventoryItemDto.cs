@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace API.DTOs
+namespace API.DTOs.InventoryItemDTOs
 {
-    public class InventoryItemDto
+    public class CreateInventoryItemDto
     {
         public string ItemName { get; set; }
         public string ItemDescription { get; set; }
