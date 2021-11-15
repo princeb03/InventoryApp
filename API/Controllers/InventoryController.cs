@@ -35,9 +35,12 @@ namespace API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(Guid id) 
         {
-            var item = await _context.Inventory.FindAsync(id);
+            var item = await _context.Inventory
+                .Include(i => i.Orders)
+                .FirstOrDefaultAsync(i => i.Id == id);
             if (item == null) return NotFound();
-            return Ok(item);
+            var itemToReturn = _mapper.Map<ItemDetailsDto>(item);
+            return Ok(itemToReturn);
         }
 
         [HttpPost]

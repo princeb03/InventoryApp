@@ -11,5 +11,6 @@ namespace API.DTOs.InventoryItemDTOs
         public string ItemName { get; set; }
         public string ItemDescription { get; set; }
         public int TotalStock { get; set; }
+        public int AvailableStock { get; set; }
     }
 }

@@ -8,6 +8,7 @@ namespace API.DTOs.OrderDTOs
 {
     public class OrderItemDto
     {
+        public Guid Order { get; set; }
         public InventoryItemDto Product { get; set; }
         public int Quantity { get; set; }
     }
