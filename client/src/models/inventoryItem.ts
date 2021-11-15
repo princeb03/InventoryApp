@@ -3,11 +3,13 @@ export interface InventoryItem {
     itemName: string;
     itemDescription: string;
     totalStock: number;
+    availableStock: number;
 };
 
 export interface InventoryItemFormValues {
     id?: string;
     itemName: string;
     itemDescription: string | null;
-    totalStock: number;
+    totalStock: string;
+    availableStock: string;
 }

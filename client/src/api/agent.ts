@@ -1,23 +1,50 @@
-import axios from "axios";
-import { InventoryItemFormValues } from "../models/inventoryItem";
+import axios, { AxiosResponse } from "axios";
+import { InventoryItem, InventoryItemFormValues } from "../models/inventoryItem";
+import { OrderCart } from "../models/order";
+import { User, UserFormValues } from "../models/user";
 
 axios.defaults.baseURL = 'http://localhost:5000/api';
 
+axios.interceptors.request.use(config => {
+    const token = localStorage.getItem('inventoryToken');
+    if (token) {
+        config.headers = {
+            Authorization: `Bearer ${token}`
+        };
+    }
+    return config;
+});
+
+const responseBody = <T>(response: AxiosResponse<T>) => response.data;
+
 const requests = {
-    get: (url: string) => axios.get(url).then(response => response.data),
-    post: (url: string, body: {}) => axios.post(url, body).then(response => response.data),
-    put: (url: string, body: {}) => axios.put(url, body).then(response => response.data)
+    get: <T>(url: string) => axios.get<T>(url).then(responseBody),
+    post: <T>(url: string, body: {}) => axios.post<T>(url, body).then(responseBody),
+    put: <T>(url: string, body: {}) => axios.put<T>(url, body).then(responseBody)
 };
 
 const Inventory = {
-    getAll: () => requests.get('/inventory'),
+    getAll: () => requests.get<InventoryItem[]>('/inventory'),
     get: (id: string) => requests.get(`/inventory/${id}`),
-    create: (body: InventoryItemFormValues) => requests.post('/inventory', body),
-    edit: (body: InventoryItemFormValues) => requests.put(`/inventory/${body.id}`, body)
+    create: (body: InventoryItemFormValues) => requests.post<void>('/inventory', body),
+    edit: (body: InventoryItemFormValues) => requests.put<void>(`/inventory/${body.id}`, body)
+};
+
+const Accounts = {
+    login: (user: UserFormValues) => requests.post<User>('/accounts/login', user),
+    register: (user: UserFormValues) => requests.post<User>('/accounts/register', user)
+};
+
+const Orders = {
+    createOrder: (order: OrderCart) => requests.post<void>('/orders', order),
+    getAll: () => requests.get<any>('/orders'),
+    completeOrder: (id: string) => requests.put<void>(`/orders/${id}/complete`, {})
 };
 
 const agent = {
-    Inventory
+    Inventory,
+    Accounts,
+    Orders
 };
 
 export default agent;

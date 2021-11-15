@@ -8,9 +8,9 @@ export default function ItemDetails() {
     const {id} = useParams<{id: string}>();
     const [item, setItem] = useState<InventoryItem>();
 
-    useEffect(() => {
-        agent.Inventory.get(id).then(item => setItem(item));
-    }, [id]);
+    // useEffect(() => {
+    //     agent.Inventory.get(id).then(item => setItem(item));
+    // }, [id]);
 
     return (
         <Fragment>

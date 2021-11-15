@@ -7,9 +7,9 @@ import { InventoryItem } from "../../models/inventoryItem";
 export default function Dashboard() {
     const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([]);
 
-    useEffect(() => {
-        agent.Inventory.getAll().then(items => setInventoryItems(items));
-    }, []);
+    // useEffect(() => {
+    //     agent.Inventory.getAll().then(items => setInventoryItems(items));
+    // }, []);
     
     return (
         <Fragment>
