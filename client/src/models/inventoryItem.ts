@@ -4,6 +4,7 @@ export interface InventoryItem {
     itemDescription: string;
     totalStock: number;
     availableStock: number;
+    image: string;
 };
 
 export interface InventoryItemFormValues {

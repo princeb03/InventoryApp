@@ -1,8 +1,10 @@
+import { observer } from "mobx-react-lite";
 import { ChangeEvent, useState } from "react";
 import { Button, Form } from "semantic-ui-react";
 import { InventoryItemFormValues } from "../../models/inventoryItem";
+import { useStore } from "../../stores/store";
 
-export default function ItemForm() {
+export default observer(function ItemForm() {
     const initialState: InventoryItemFormValues = {
         itemName: '',
         itemDescription: '',
@@ -10,13 +12,15 @@ export default function ItemForm() {
         availableStock: ''
     };
     const [itemData, setItemData] = useState<InventoryItemFormValues>(initialState);
+    const { inventoryStore } = useStore();
+    const { createNew } = inventoryStore;
     
     function handleChange(e: ChangeEvent<HTMLInputElement>) {
         setItemData({ ...itemData, [e.currentTarget.name]: e.currentTarget.value});
     }
 
     function handleSubmit() {
-        console.log(itemData);
+        createNew(itemData);
         setItemData(initialState);
     }
 
@@ -26,7 +30,7 @@ export default function ItemForm() {
             <Form.Input name="itemDescription" value={itemData.itemDescription} label="Description" onChange={handleChange} />
             <Form.Input name="totalStock" value={itemData.totalStock} label="Total Stock" onChange={handleChange} required />
             <Form.Input name="availableStock" value={itemData.availableStock} label="Available Stock" onChange={handleChange} required />
-            <Button type="submit" />
+            <Button type="submit" content="Create Item" positive />
         </Form>
     );
-}
+})

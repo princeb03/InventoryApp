@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using API.DTOs;
 using API.DTOs.AccountDTOs;
@@ -77,7 +78,14 @@ namespace API.Controllers
         public async Task<ActionResult<List<AppUser>>> GetAllUsers()
         {
             var users = await _userManager.Users.ToListAsync();
-            return users;
+            return Ok(users);
+        }
+
+        [HttpGet("current")]
+        public async Task<ActionResult<UserDto>> GetCurrentUser() 
+        {
+            var currentUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            return CreateUserDto(currentUser);
         }
 
         private UserDto CreateUserDto(AppUser user)

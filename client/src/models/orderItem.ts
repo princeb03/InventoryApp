@@ -1,4 +1,6 @@
+import { InventoryItem } from "./inventoryItem";
+
 export interface OrderItem {
-    product: string;
+    product: InventoryItem;
     quantity: number;
 }

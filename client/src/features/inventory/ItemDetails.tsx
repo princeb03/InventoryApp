@@ -1,7 +1,6 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useState } from "react";
 import { useParams } from "react-router";
 import { Header } from "semantic-ui-react";
-import agent from "../../api/agent";
 import { InventoryItem } from "../../models/inventoryItem";
 
 export default function ItemDetails() {

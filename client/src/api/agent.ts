@@ -1,7 +1,13 @@
 import axios, { AxiosResponse } from "axios";
 import { InventoryItem, InventoryItemFormValues } from "../models/inventoryItem";
-import { OrderCart } from "../models/order";
+import { OrderItem } from "../models/orderItem";
 import { User, UserFormValues } from "../models/user";
+
+const sleep = () => {
+    return new Promise(resolve => {
+        setTimeout(resolve, 1000);
+    });
+};
 
 axios.defaults.baseURL = 'http://localhost:5000/api';
 
@@ -13,6 +19,11 @@ axios.interceptors.request.use(config => {
         };
     }
     return config;
+});
+
+axios.interceptors.response.use( async response => {
+    await sleep();
+    return response;
 });
 
 const responseBody = <T>(response: AxiosResponse<T>) => response.data;
@@ -32,11 +43,12 @@ const Inventory = {
 
 const Accounts = {
     login: (user: UserFormValues) => requests.post<User>('/accounts/login', user),
-    register: (user: UserFormValues) => requests.post<User>('/accounts/register', user)
+    register: (user: UserFormValues) => requests.post<User>('/accounts/register', user),
+    getCurrent: () => requests.get<User>('/accounts/current')
 };
 
 const Orders = {
-    createOrder: (order: OrderCart) => requests.post<void>('/orders', order),
+    createOrder: (order: OrderItem[]) => requests.post<void>('/orders', order),
     getAll: () => requests.get<any>('/orders'),
     completeOrder: (id: string) => requests.put<void>(`/orders/${id}/complete`, {})
 };
