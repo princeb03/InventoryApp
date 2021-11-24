@@ -4,7 +4,9 @@ import { InventoryItem, InventoryItemFormValues } from "../models/inventoryItem"
 
 export class InventoryStore {
     inventoryItems: InventoryItem[] = [];
+    currentItem: InventoryItem | null = null;
     loadingInitial = true;
+
     constructor() {
         makeAutoObservable(this);
     }
@@ -19,6 +21,7 @@ export class InventoryStore {
             });
         } catch(err) {
             console.log(err);
+            this.loadingInitial = false;
         }
     }
 
@@ -27,6 +30,20 @@ export class InventoryStore {
             await agent.Inventory.create(newItem);
         } catch(err) {
             console.log(err);
+        }
+    }
+
+    getDetails = async (id: string) => {
+        try {
+            this.loadingInitial = true;
+            const item = await agent.Inventory.get(id);
+            runInAction(() => {
+                this.currentItem = item;
+                this.loadingInitial = false
+            }); 
+        } catch(err) {
+            console.log(err);
+            this.loadingInitial = false;
         }
     }
 

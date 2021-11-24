@@ -40,6 +40,19 @@ namespace API.Controllers
             return ordersToReturn;
         }
 
+        [HttpGet("{id}")]
+        public async Task<ActionResult<OrderDto>> GetOrder(Guid id) 
+        {
+            var order = await _context.Orders
+                .Include(o => o.OrderItems)
+                .ThenInclude(o => o.Product)
+                .FirstOrDefaultAsync(o => o.Id == id);
+            if (order == null) return NotFound();
+            if (order.UserId != User.FindFirstValue(ClaimTypes.NameIdentifier)) return Unauthorized();
+            var orderToReturn = _mapper.Map<OrderDto>(order);
+            return Ok(orderToReturn);
+        }
+
         [HttpPost]
         public async Task<IActionResult> CreateOrder(CreateOrderDto createOrderDto)
         {

@@ -1,6 +1,7 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import agent from "../api/agent";
 import { User, UserFormValues } from "../models/user";
+import { history } from '../index';
 
 export class UserStore {
     currentUser: User | null = null;
@@ -19,6 +20,7 @@ export class UserStore {
             runInAction(() => {
                 this.currentUser = user;
                 localStorage.setItem('inventoryToken', this.currentUser.token);
+                history.push('/dashboard');
             });
         } catch(err) {
             console.log(err);
@@ -31,6 +33,7 @@ export class UserStore {
             runInAction(() => {
                 this.currentUser = newUser;
                 localStorage.setItem('inventoryToken', this.currentUser.token);
+                history.push('/dashboard');
             });
         } catch(err) {
             console.log(err);
@@ -40,6 +43,7 @@ export class UserStore {
     logout = () => {
         this.currentUser = null;
         localStorage.removeItem('inventoryToken');
+        history.push('/');
     }
 
     getCurrentUser = async () => {

@@ -1,23 +1,27 @@
 import { observer } from "mobx-react-lite"
-import { Fragment } from "react";
+import { Fragment, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button, Grid, GridColumn, Header, Segment, SegmentGroup, Image } from "semantic-ui-react";
 import { useStore } from "../../stores/store"
 
 export default observer(function OrderCart() {
     const { orderStore } = useStore();
-    const { cart, removeFromCart } = orderStore;
+    const { cart, removeFromCart, placeOrder, setCart } = orderStore;
+    useEffect(() => {
+        setCart();
+    }, [setCart]);
     return (
         <Fragment>
             <Header as="h1" content="My Cart" />
             {
-                cart.length == 0 ? 
+                cart.length === 0 ? 
                 <Fragment>
                     <Header as='h3' content='No items in your cart.' />
                     <Button as={Link} to='/dashboard' size='huge' content='Back to Items' color='facebook' />
                 </Fragment>
                 :
                 <Fragment>
+                    <Button as={Link} to='/dashboard' size='medium' content='Back to Items' color='grey' icon='arrow circle left'/>
                     <SegmentGroup>
                     {   
                         cart.map((orderItem, index) => (
@@ -44,7 +48,7 @@ export default observer(function OrderCart() {
                         ))
                     }
                     </SegmentGroup>
-                    <Button size='huge' content='Checkout' color='facebook' />
+                    <Button size='huge' content='Checkout' color='facebook' onClick={placeOrder}/>
                 </Fragment>
             }
             

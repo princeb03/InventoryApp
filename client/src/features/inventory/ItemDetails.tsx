@@ -1,21 +1,32 @@
-import { Fragment, useState } from "react";
+import { observer } from "mobx-react-lite";
+import { Fragment, useEffect } from "react";
 import { useParams } from "react-router";
-import { Header } from "semantic-ui-react";
-import { InventoryItem } from "../../models/inventoryItem";
+import { Link } from "react-router-dom";
+import { Button, Header, Image } from "semantic-ui-react";
+import LoadingComponent from "../../layout/LoadingComponent";
+import { useStore } from "../../stores/store";
 
-export default function ItemDetails() {
+export default observer(function ItemDetails() {
     const {id} = useParams<{id: string}>();
-    const [item, setItem] = useState<InventoryItem>();
+    const { inventoryStore } = useStore();
+    const { getDetails, currentItem, loadingInitial } = inventoryStore;
+    useEffect(() => {
+        getDetails(id);
+    }, [getDetails, id]);
 
-    // useEffect(() => {
-    //     agent.Inventory.get(id).then(item => setItem(item));
-    // }, [id]);
-
+    if (loadingInitial) return (<LoadingComponent content='Loading Item...' />);
     return (
         <Fragment>
-            <Header content={item?.itemName} />
-            <Header as='h2' content={item?.itemDescription} />
-            <Header as='h2' content={item?.totalStock} />
+            <Image src='/assets/drill.jpeg' floated='right' size='large' />
+            <Button as={Link} to='/dashboard' size='medium' content='Back to Items' color='grey' icon='arrow circle left'/>
+            <Header as='h1' content={currentItem?.itemName} dividing />
+            <p>{currentItem?.itemDescription}</p>
+            <Header as='h2' content='Total Stock' dividing/>
+            <p>{currentItem?.totalStock}</p>
+            <Header as='h2' content='Available Stock' dividing />
+            <p>{currentItem?.availableStock}</p>
+            <Header as='h2' content='Orders' dividing />
+            <p>Orders go here</p>
         </Fragment>
     );
-}
+});

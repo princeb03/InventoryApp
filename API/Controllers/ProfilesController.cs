@@ -25,14 +25,14 @@ namespace API.Controllers
             _userManager = userManager;
             _mapper = mapper;
         }
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetProfile(string id)
+        [HttpGet("{username}")]
+        public async Task<IActionResult> GetProfile(string username)
         {
             var user = await _userManager.Users
                 .Include(u => u.Orders)
                 .ThenInclude(o => o.OrderItems)
                 .ThenInclude(o => o.Product)
-                .FirstOrDefaultAsync(u => u.Id == id);
+                .FirstOrDefaultAsync(u => u.UserName == username);
             if (user == null) return NotFound();
             var profile = _mapper.Map<ProfileDto>(user);
 

@@ -1,6 +1,7 @@
 import axios, { AxiosResponse } from "axios";
 import { InventoryItem, InventoryItemFormValues } from "../models/inventoryItem";
-import { OrderItem } from "../models/orderItem";
+import { CreateOrderDto } from "../models/order";
+import { Profile, ProfileOrder } from "../models/profile";
 import { User, UserFormValues } from "../models/user";
 
 const sleep = () => {
@@ -36,7 +37,7 @@ const requests = {
 
 const Inventory = {
     getAll: () => requests.get<InventoryItem[]>('/inventory'),
-    get: (id: string) => requests.get(`/inventory/${id}`),
+    get: (id: string) => requests.get<InventoryItem>(`/inventory/${id}`),
     create: (body: InventoryItemFormValues) => requests.post<void>('/inventory', body),
     edit: (body: InventoryItemFormValues) => requests.put<void>(`/inventory/${body.id}`, body)
 };
@@ -48,15 +49,22 @@ const Accounts = {
 };
 
 const Orders = {
-    createOrder: (order: OrderItem[]) => requests.post<void>('/orders', order),
+    createOrder: (order: CreateOrderDto) => requests.post<void>('/orders', order),
     getAll: () => requests.get<any>('/orders'),
-    completeOrder: (id: string) => requests.put<void>(`/orders/${id}/complete`, {})
+    toggleOrder: (id: string) => requests.put<void>(`/orders/${id}/complete`, {}),
+    getOrder: (id: string) => requests.get<ProfileOrder>(`/orders/${id}`)
+};
+
+const Profiles = {
+    getProfile: (username: string) => requests.get<Profile>(`/profiles/${username}`),
+    getAll: () => requests.get<Profile[]>('/profiles')
 };
 
 const agent = {
     Inventory,
     Accounts,
-    Orders
+    Orders,
+    Profiles
 };
 
 export default agent;

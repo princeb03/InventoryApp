@@ -6,11 +6,11 @@ import { useStore } from "../../stores/store";
 import ItemCard from "./ItemCard";
 
 export default observer (function Dashboard() {
-    const { inventoryStore } = useStore();
+    const { inventoryStore, userStore } = useStore();
     const { inventoryItems, getAll, loadingInitial } = inventoryStore;
     useEffect(() => {
         getAll();
-    }, [getAll]);
+    }, [getAll, userStore.currentUser]);
     if (loadingInitial) return (<LoadingComponent content="Loading items..." />)
     return (
         <Fragment>

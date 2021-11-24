@@ -11,24 +11,25 @@ export default observer(function NavBar() {
         <Menu fixed='top' inverted>
             <Container>
                 <MenuItem as={NavLink} to="/" content="Home"/>
-                <MenuItem as={NavLink} to="/dashboard" content="All items"/>
-                <MenuItem as={NavLink} to="/create" content="Create New"/>
+                <MenuItem as={NavLink} to="/dashboard" content="Inventory"/>
+                <MenuItem as={NavLink} to="/create" content="Add to Inventory"/>
                 {
                     isLoggedIn && 
                     <Fragment>
-                        <MenuItem as={NavLink} to="/cart" content="My Cart" position='right' />
+                        <MenuItem as={NavLink} to="/cart" content="My Cart" position='right' icon='cart' />
                         <MenuItem>
-                            <Dropdown pointing='top right' text={`Welcome ${currentUser?.displayName}`}>
+                            <Dropdown pointing='top right' text={`Welcome, ${currentUser?.displayName}`}>
                                 <DropdownMenu>
                                     <DropdownItem
-                                        text="Edit Profile"
+                                        icon='user'
+                                        text='My Profile'
                                         as={Link}
-                                        to="/dashboard" 
+                                        to={`/profiles/${currentUser?.username}`} 
                                     />
                                     <DropdownItem 
                                         text="Logout"
                                         onClick={logout}
-                                        icon='power' 
+                                        icon='sign-out' 
                                     />
                                 </DropdownMenu>
                             </Dropdown>
