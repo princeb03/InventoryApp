@@ -18,6 +18,7 @@ namespace API.Persistence
         public DbSet<InventoryItem> Inventory { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<Photo> Photos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

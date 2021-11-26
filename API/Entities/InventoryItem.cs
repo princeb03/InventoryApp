@@ -17,5 +17,6 @@ namespace API.Entities
         [Required]
         public int AvailableStock { get; set; }
         public ICollection<OrderItem> Orders { get; set; } = new List<OrderItem>();
+        public ICollection<Photo> Photos { get; set; } = new List<Photo>();
     }
 }

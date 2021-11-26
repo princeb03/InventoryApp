@@ -1,6 +1,7 @@
 import axios, { AxiosResponse } from "axios";
 import { InventoryItem, InventoryItemFormValues } from "../models/inventoryItem";
 import { CreateOrderDto } from "../models/order";
+import Photo from "../models/photo";
 import { Profile, ProfileOrder } from "../models/profile";
 import { User, UserFormValues } from "../models/user";
 
@@ -32,14 +33,24 @@ const responseBody = <T>(response: AxiosResponse<T>) => response.data;
 const requests = {
     get: <T>(url: string) => axios.get<T>(url).then(responseBody),
     post: <T>(url: string, body: {}) => axios.post<T>(url, body).then(responseBody),
-    put: <T>(url: string, body: {}) => axios.put<T>(url, body).then(responseBody)
+    put: <T>(url: string, body: {}) => axios.put<T>(url, body).then(responseBody),
+    delete: <T>(url: string) => axios.delete<T>(url).then(responseBody)
 };
 
 const Inventory = {
     getAll: () => requests.get<InventoryItem[]>('/inventory'),
     get: (id: string) => requests.get<InventoryItem>(`/inventory/${id}`),
     create: (body: InventoryItemFormValues) => requests.post<void>('/inventory', body),
-    edit: (body: InventoryItemFormValues) => requests.put<void>(`/inventory/${body.id}`, body)
+    edit: (body: InventoryItemFormValues) => requests.put<void>(`/inventory/${body.id}`, body),
+    uploadPhoto: (file: Blob, itemId: string) => {
+        let formData = new FormData();
+        formData.append('File', file);
+        return axios.post<Photo>(`/photos/${itemId}`, formData, {
+            headers: {'Content-type': 'multipart/form-data'}
+        });
+    },
+    setMainPhoto: (itemId: string, photoId: string) => requests.post<void>(`/photos/${itemId}/${photoId}/setMain`, {}),
+    deletePhoto: (itemId: string, photoId: string) => requests.delete<void>(`/photos/${itemId}/${photoId}`)
 };
 
 const Accounts = {

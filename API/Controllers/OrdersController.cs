@@ -46,6 +46,7 @@ namespace API.Controllers
             var order = await _context.Orders
                 .Include(o => o.OrderItems)
                 .ThenInclude(o => o.Product)
+                .ThenInclude(p => p.Photos)
                 .FirstOrDefaultAsync(o => o.Id == id);
             if (order == null) return NotFound();
             if (order.UserId != User.FindFirstValue(ClaimTypes.NameIdentifier)) return Unauthorized();

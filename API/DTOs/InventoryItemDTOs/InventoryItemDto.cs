@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using API.Entities;
 
 namespace API.DTOs.InventoryItemDTOs
 {
@@ -12,5 +13,6 @@ namespace API.DTOs.InventoryItemDTOs
         public string ItemDescription { get; set; }
         public int TotalStock { get; set; }
         public int AvailableStock { get; set; }
+        public string MainPhoto { get; set; }
     }
 }

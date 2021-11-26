@@ -27,7 +27,7 @@ namespace API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll() 
         {
-            var allItems = await _context.Inventory.ToListAsync();
+            var allItems = await _context.Inventory.Include(i => i.Photos).ToListAsync();
             var itemsToReturn = _mapper.Map<List<InventoryItemDto>>(allItems);
             return Ok(itemsToReturn);
         }
@@ -37,6 +37,7 @@ namespace API.Controllers
         {
             var item = await _context.Inventory
                 .Include(i => i.Orders)
+                .Include(i => i.Photos)
                 .FirstOrDefaultAsync(i => i.Id == id);
             if (item == null) return NotFound();
             var itemToReturn = _mapper.Map<ItemDetailsDto>(item);

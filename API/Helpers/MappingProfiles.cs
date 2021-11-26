@@ -25,8 +25,10 @@ namespace API.Helpers
                 .ForMember(p => p.Orders, opt => opt.MapFrom(u => u.Orders));
 
             CreateMap<CreateInventoryItemDto, InventoryItem>();
-            CreateMap<InventoryItem, InventoryItemDto>();
-            CreateMap<InventoryItem, ItemDetailsDto>();
+            CreateMap<InventoryItem, InventoryItemDto>()
+                .ForMember(o => o.MainPhoto, o => o.MapFrom(i => i.Photos.FirstOrDefault(p => p.IsMain).Url));
+            CreateMap<InventoryItem, ItemDetailsDto>()
+                .ForMember(i => i.MainPhoto, o => o.MapFrom(i => i.Photos.FirstOrDefault(p => p.IsMain).Url));
 
         }
     }

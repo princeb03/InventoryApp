@@ -47,7 +47,7 @@ export default observer(function OrderDetails() {
                     {
                         currentOrder.orderItems.map((orderItem, index) => (
                             <Table.Row key={index}>
-                                <Table.Cell><Image src='/assets/drill.jpeg' size='tiny' /></Table.Cell>
+                                <Table.Cell><Image src={orderItem.product.mainPhoto || '/assets/Cordless-Hammer-Drill.png'} size='tiny' /></Table.Cell>
                                 <Table.Cell>{<Link to={`/items/${orderItem.product.id}`}>{orderItem.product.itemName}</Link>}</Table.Cell>
                                 <Table.Cell>{orderItem.product.itemDescription}</Table.Cell>
                                 <Table.Cell textAlign='center'>{orderItem.quantity}</Table.Cell>

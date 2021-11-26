@@ -1,7 +1,7 @@
 import { observer } from "mobx-react-lite";
 import { ChangeEvent, useState } from "react";
 import { Link } from "react-router-dom";
-import { Card, CardContent, CardDescription, CardHeader, Form, Input, Image } from "semantic-ui-react";
+import { Card, CardContent, CardDescription, CardHeader, Form, Input, Image, CardMeta } from "semantic-ui-react";
 import { InventoryItem } from "../../models/inventoryItem";
 import { useStore } from "../../stores/store";
 
@@ -20,10 +20,16 @@ export default observer(function ItemCard({ item }: Props) {
 
     return (
         <Card fluid>
-            <Image as={Link} to={`/items/${item.id}`} src={item.image || '/assets/drill.jpeg'} />
+            <Image as={Link} to={`/items/${item.id}`} src={item.mainPhoto || '/assets/drill.jpeg'} />
             <CardContent>
                 <CardHeader as={Link} to={`/items/${item.id}`}>{item.itemName}</CardHeader>
-                <CardDescription>{item.itemDescription}</CardDescription>
+                <CardMeta>
+                    <p>{item.itemDescription}</p>
+                </CardMeta>
+                <CardDescription>
+                    <p>Available: <strong style={{color: 'green'}}>{item.availableStock}</strong></p>
+                    <p>Total: <strong>{item.totalStock}</strong></p>
+                </CardDescription>
             </CardContent>
             <CardContent extra>
                 <Form style={{marginBottom: '-0.9em'}}>

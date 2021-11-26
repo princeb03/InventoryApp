@@ -1,11 +1,14 @@
+import Photo from "./photo";
+
 export interface InventoryItem {
     id: string;
     itemName: string;
     itemDescription: string;
     totalStock: number;
     availableStock: number;
-    image?: string;
+    mainPhoto?: string;
     orders?: any;
+    photos?: Photo[];
 };
 
 export interface InventoryItemFormValues {
