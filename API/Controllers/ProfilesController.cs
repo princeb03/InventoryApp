@@ -33,7 +33,7 @@ namespace API.Controllers
                 .ThenInclude(o => o.OrderItems)
                 .ThenInclude(o => o.Product)
                 .FirstOrDefaultAsync(u => u.UserName == username);
-            if (user == null) return NotFound();
+            if (user == null) return NotFound("User not found.");
             var profile = _mapper.Map<ProfileDto>(user);
 
             return Ok(profile);

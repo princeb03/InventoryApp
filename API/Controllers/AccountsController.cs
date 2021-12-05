@@ -44,11 +44,11 @@ namespace API.Controllers
         {
             if (await _userManager.Users.AnyAsync(x => x.Email == newUser.Email))
             {
-                return BadRequest("E-mail taken");
+                return BadRequest("E-mail taken.");
             }
             if (await _userManager.Users.AnyAsync(x => x.UserName == newUser.Username))
             {
-                return BadRequest("Username taken");
+                return BadRequest("Username taken.");
             }
             var user = new AppUser
             {
@@ -58,7 +58,7 @@ namespace API.Controllers
             };
             var result = await _userManager.CreateAsync(user, newUser.Password);
             if (result.Succeeded) return CreateUserDto(user);
-            return BadRequest("Registration failed");
+            return BadRequest("Registration failed.");
         }
 
         [HttpPost("login")]
@@ -67,11 +67,11 @@ namespace API.Controllers
             var user = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == loginDetails.Email);
             if (user == null) 
             {
-                return Unauthorized();
+                return Unauthorized("Incorrect e-mail/password.");
             }
             var result = await _signInManager.CheckPasswordSignInAsync(user, loginDetails.Password, false);
             if (result.Succeeded) return CreateUserDto(user);
-            return Unauthorized();
+            return Unauthorized("Incorrect e-mail/password.");
         }
         
         [HttpGet]
@@ -85,6 +85,7 @@ namespace API.Controllers
         public async Task<ActionResult<UserDto>> GetCurrentUser() 
         {
             var currentUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            if (currentUser == null) return NoContent();
             return CreateUserDto(currentUser);
         }
 

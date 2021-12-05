@@ -26,11 +26,11 @@ export default observer(function ItemForm() {
 
     return (
         <Form onSubmit={handleSubmit}>
-            <Form.Input name="itemName" value={itemData.itemName} label="Name" onChange={handleChange} required/>
+            <Form.Input name="itemName" value={itemData.itemName} label="Name" onChange={handleChange} required />
             <Form.Input name="itemDescription" value={itemData.itemDescription} label="Description" onChange={handleChange} />
             <Form.Input name="totalStock" value={itemData.totalStock} label="Total Stock" onChange={handleChange} required />
             <Form.Input name="availableStock" value={itemData.availableStock} label="Available Stock" onChange={handleChange} required />
-            <Button type="submit" content="Create Item" positive />
+            <Button type="submit" content="Create Item" color='facebook' />
         </Form>
     );
 })

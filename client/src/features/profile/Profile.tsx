@@ -19,6 +19,7 @@ export default observer(function Profile() {
         <Fragment>
             <Header as='h1' content={currentProfile.displayName} />
             <Header as='h2' content='Details' />
+            
             <p><strong></strong></p>
             <Header as='h2' content='My Orders' />
             <Segment.Group>

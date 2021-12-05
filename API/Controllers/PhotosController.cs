@@ -34,7 +34,7 @@ namespace API.Controllers
             var inventoryItem = await _context.Inventory.Include(i => i.Photos)
                 .FirstOrDefaultAsync(i => i.Id == itemId);
 
-            if (inventoryItem == null) return NotFound();
+            if (inventoryItem == null) return NotFound("Item not found.");
 
             var photoUploadResult = await _photoAccessor.AddPhoto(File);
             var photo = new Photo
@@ -49,7 +49,7 @@ namespace API.Controllers
             var result = await _context.SaveChangesAsync() > 0;
 
             if (result) return Ok(photo);
-            return BadRequest("Problem adding photo.");
+            return BadRequest("Failed to add photo.");
 
         }
 
@@ -57,10 +57,10 @@ namespace API.Controllers
         public async Task<IActionResult> Delete(Guid itemId, string photoId )
         {
             var inventoryItem = await _context.Inventory.Include(i => i.Photos).FirstOrDefaultAsync(i => i.Id == itemId);
-            if (inventoryItem == null) return NotFound();
+            if (inventoryItem == null) return NotFound("Item not found.");
 
             var photo = inventoryItem.Photos.FirstOrDefault(p => p.Id == photoId);
-            if (photo == null) return NotFound();
+            if (photo == null) return NotFound("Photo not found.");
 
             if (photo.IsMain) return BadRequest("Cannot delete main photo.");
 
@@ -79,10 +79,10 @@ namespace API.Controllers
         {
             var inventoryItem = await _context.Inventory.Include(i => i.Photos)
                 .FirstOrDefaultAsync(i => i.Id == itemId);
-            if (inventoryItem == null) return NotFound();
+            if (inventoryItem == null) return NotFound("Item not found.");
 
             var photo = inventoryItem.Photos.FirstOrDefault(p => p.Id == photoId);
-            if (photo == null) return NotFound();
+            if (photo == null) return NotFound("Photo not found.");
 
             var currentMain = inventoryItem.Photos.FirstOrDefault(p => p.IsMain);
             if (currentMain != null) currentMain.IsMain = false;

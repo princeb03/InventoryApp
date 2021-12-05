@@ -1,4 +1,5 @@
-import axios, { AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
+import { toast } from "react-toastify";
 import { InventoryItem, InventoryItemFormValues } from "../models/inventoryItem";
 import { CreateOrderDto } from "../models/order";
 import Photo from "../models/photo";
@@ -7,7 +8,7 @@ import { User, UserFormValues } from "../models/user";
 
 const sleep = () => {
     return new Promise(resolve => {
-        setTimeout(resolve, 1000);
+        setTimeout(resolve, 500);
     });
 };
 
@@ -26,6 +27,23 @@ axios.interceptors.request.use(config => {
 axios.interceptors.response.use( async response => {
     await sleep();
     return response;
+}, (error: AxiosError) => {
+    const { data, status, statusText } = error.response!;
+    if (!data) toast.error(statusText);
+    else if (data.hasOwnProperty('errors')) {
+        toast.error(data.title);
+    }
+    else {
+        switch(status) {
+            case 500:
+                toast.error(data.message);
+                break;
+            default:
+                toast.error(data);
+        }
+    }
+    
+    return Promise.reject(error);
 });
 
 const responseBody = <T>(response: AxiosResponse<T>) => response.data;

@@ -1,5 +1,6 @@
 import { Fragment, useEffect } from 'react';
 import { Route, Switch } from 'react-router-dom';
+import { Flip, ToastContainer } from 'react-toastify';
 import { Container } from 'semantic-ui-react';
 import './App.css';
 import OrderCart from './features/cart/OrderCart';
@@ -25,6 +26,7 @@ function App() {
 
   return (
     <Fragment>
+      <ToastContainer position="bottom-right" theme="colored" transition={Flip} />
       <Route exact path='/' component={LandingPage} />
       <Route
         path={'/(.+)'}

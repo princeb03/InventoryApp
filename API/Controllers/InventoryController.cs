@@ -39,7 +39,7 @@ namespace API.Controllers
                 .Include(i => i.Orders)
                 .Include(i => i.Photos)
                 .FirstOrDefaultAsync(i => i.Id == id);
-            if (item == null) return NotFound();
+            if (item == null) return NotFound("Item not found.");
             var itemToReturn = _mapper.Map<ItemDetailsDto>(item);
             return Ok(itemToReturn);
         }
@@ -48,6 +48,7 @@ namespace API.Controllers
         public async Task<IActionResult> CreateItem(CreateInventoryItemDto newItem)
         {
             var item = _mapper.Map<InventoryItem>(newItem);
+            Console.WriteLine(item);
             _context.Inventory.Add(item);
             await _context.SaveChangesAsync();
             return NoContent();
@@ -57,7 +58,7 @@ namespace API.Controllers
         public async Task<IActionResult> UpdateItem(CreateInventoryItemDto item, Guid id)
         {
             var itemToUpdate = await _context.Inventory.FindAsync(id);
-            if (itemToUpdate == null) return NotFound();
+            if (itemToUpdate == null) return NotFound("Item not found.");
             _mapper.Map(item, itemToUpdate);
             await _context.SaveChangesAsync();
             return NoContent();
