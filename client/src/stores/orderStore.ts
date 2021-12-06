@@ -23,11 +23,12 @@ export class OrderStore {
         this.saveCartToStorage();
     }
     
-    placeOrder = async () => {
+    placeOrder = async (notes: string) => {
         this.loading = true;
         const itemsToOrder = this.cart.map(item => this.mapItemToApi(item));
         const order: CreateOrderDto = {
-            orderItems: itemsToOrder
+            orderItems: itemsToOrder,
+            notes: notes
         };
         try {
             await agent.Orders.createOrder(order);

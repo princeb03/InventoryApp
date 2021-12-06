@@ -33,6 +33,9 @@ export default observer(function OrderDetails() {
                     onClick={() => toggleOrder(orderId)}
                 />
             }
+            <Header as='h2' content='Notes' />
+            <p>{currentOrder.notes}</p>
+            <Button color='facebook' content='Edit Notes' />
             <Header as='h2' content='Items' />
             <Table size='large'>
                 <Table.Header>

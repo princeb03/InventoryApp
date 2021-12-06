@@ -13,6 +13,7 @@ export interface ProfileOrder {
     orderCreatedAt: string;
     orderCompletedAt: string;
     orderItems: ProfileOrderItem[];
+    notes: string;
 }
 
 export interface ProfileOrderItem {

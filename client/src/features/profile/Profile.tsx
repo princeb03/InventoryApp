@@ -2,7 +2,7 @@ import { observer } from "mobx-react-lite";
 import { Fragment, useEffect } from "react";
 import { useParams } from "react-router";
 import { Link } from "react-router-dom";
-import { Button, Header, Segment } from "semantic-ui-react";
+import { Button, Header, Label, Segment } from "semantic-ui-react";
 import LoadingComponent from "../../layout/LoadingComponent";
 import { useStore } from "../../stores/store";
 
@@ -19,17 +19,19 @@ export default observer(function Profile() {
         <Fragment>
             <Header as='h1' content={currentProfile.displayName} />
             <Header as='h2' content='Details' />
-            
-            <p><strong></strong></p>
+            <p>{`E-mail: ${currentProfile.email}`}</p>
+            <p>{`Username: ${currentProfile.username}`}</p>
+            <p>{`Display Name: ${currentProfile.displayName}`}</p>
+            <Button content='Edit Details' color='facebook' />
             <Header as='h2' content='My Orders' />
             <Segment.Group>
             {
                 currentProfile.orders.map((order, index) => (
                     <Segment key={index}>
                         <Header as='h3' content={order.id} />
+                        <p>{order.orderStatus === 'Completed' ? <Label color='green' content='Completed' /> : <Label color='red' content='In Use' />}</p>
                         <p><strong>Created at:</strong> {order.orderCreatedAt}</p>
                         {order.orderStatus === 'Completed' && <p><strong>Completed at:</strong> {order.orderCompletedAt}</p>}
-                        <p><strong>Status:</strong> {order.orderStatus}</p>
                         <Button 
                             as={Link}
                             to={`/orders/${order.id}`}

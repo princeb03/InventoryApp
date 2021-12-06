@@ -10,5 +10,6 @@ namespace API.DTOs.OrderDTOs
     {
         [Required]
         public List<CreateOrderItemDto> OrderItems { get; set; }
+        public string Notes { get; set; }
     }
 }

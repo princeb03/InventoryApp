@@ -61,7 +61,8 @@ namespace API.Controllers
             var newOrder = new Order {
                 User = currentUser,
                 OrderStatus = "In Use",
-                OrderCreatedAt = DateTime.Now
+                OrderCreatedAt = DateTime.Now,
+                Notes = createOrderDto.Notes
             };
 
             _context.Orders.Add(newOrder);

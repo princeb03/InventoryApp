@@ -41,21 +41,28 @@ export default observer(function ItemDetails() {
                 size='medium' 
             />
             <Button as={Link} to='/dashboard' size='medium' content='Back to Items' color='grey' icon='arrow circle left'/>
-            <Header as='h1' content={currentItem?.itemName} dividing />
+            <Header as='h1' content={currentItem?.itemName}  />
             <p>{currentItem?.itemDescription}</p>
             
-            <Header as='h2' content='Stock' dividing/>
+            <Header as='h2' content='Stock' />
             <p><strong>Total: </strong>{currentItem?.totalStock}</p>
             <p><strong>Available: </strong>{currentItem?.availableStock}</p>
 
-            <Header as='h2' content='Photos' dividing />
-            <Button 
-                circular 
-                content={addPhotoMode ? 'Cancel' : 'Add Photo'}
-                floated='right'
-                onClick={() => setAddPhotoMode(!addPhotoMode)} />
+            
+                <Header as='h2' content='Photos' style={{display: 'inline-block'}} />
+                <Button 
+                    circular 
+                    icon={addPhotoMode ? 'close' : 'add'}
+                    content={addPhotoMode ? 'Cancel' : 'Add'}
+                    onClick={() => setAddPhotoMode(!addPhotoMode)} 
+                    style={{marginLeft: '1em'}}
+                    size='tiny'
+                />
+            
             { 
                 addPhotoMode ? <PhotoUploadWidget uploadPhoto={handlePhotoUpload} loading={uploading} /> :
+                !currentItem!.photos || currentItem!.photos.length === 0 ? 
+                <p>No photos yet.</p> :
                 <Card.Group itemsPerRow={4}>
                     {currentItem?.photos?.map((photo, index) => (
                        <Card key={index}>
@@ -82,7 +89,7 @@ export default observer(function ItemDetails() {
             }
             
 
-            <Header as='h2' content='Orders' dividing />
+            <Header as='h2' content='Orders'  />
             <p>Orders go here</p>
         </Fragment>
     );

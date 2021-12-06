@@ -16,6 +16,6 @@ namespace API.Entities
         public string OrderStatus { get; set; }
         public DateTime OrderCreatedAt { get; set; }
         public DateTime OrderCompletedAt { get; set; }
-
+        public string Notes { get; set; }
     }
 }

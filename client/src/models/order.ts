@@ -6,5 +6,6 @@ export interface OrderCart {
 
 export interface CreateOrderDto {
     orderItems: CreateOrderItemAPI[];
+    notes: string;
 }
 
