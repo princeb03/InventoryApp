@@ -1,25 +1,47 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import agent from "../api/agent";
 import { InventoryItem, InventoryItemFormValues } from "../models/inventoryItem";
+import { Pagination, PagingParams } from "../models/pagination";
 import Photo from "../models/photo";
 
 export class InventoryStore {
-    inventoryItems: InventoryItem[] = [];
+    inventoryRegistry = new Map<string, InventoryItem>();
+    
     currentItem: InventoryItem | null = null;
     loadingInitial = true;
     loading = false;
     uploading = false;
+    pagination: Pagination | null = null;
+    pagingParams = new PagingParams();
 
     constructor() {
         makeAutoObservable(this);
     }
 
+    get axiosParams() {
+        const params = new URLSearchParams();
+        params.append('pageNumber', this.pagingParams.pageNumber.toString());
+        params.append('pageSize', this.pagingParams.pageSize.toString());
+        return params;
+    }
+    
+    get inventoryItems() {
+        return Array.from(this.inventoryRegistry.values()).sort((a, b) => a.itemName.localeCompare(b.itemName));
+    }
+
+    setPagingParams = (pagingParams: PagingParams) => {
+        this.pagingParams = pagingParams;
+    }
+
     getAll = async () => {
         this.loadingInitial = true;
         try {
-            const inventory = await agent.Inventory.getAll();
+            const paginatedInventory = await agent.Inventory.getAll(this.axiosParams);
             runInAction(() => {
-                this.inventoryItems = inventory;
+                paginatedInventory.data.forEach((item) => {
+                    this.inventoryRegistry.set(item.id, item);
+                });
+                this.pagination = paginatedInventory.pagination;
                 this.loadingInitial = false;
             });
         } catch(err) {

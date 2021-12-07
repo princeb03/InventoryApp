@@ -2,6 +2,7 @@ import axios, { AxiosError, AxiosResponse } from "axios";
 import { toast } from "react-toastify";
 import { InventoryItem, InventoryItemFormValues } from "../models/inventoryItem";
 import { CreateOrderDto } from "../models/order";
+import { PaginatedResult } from "../models/pagination";
 import Photo from "../models/photo";
 import { Profile, ProfileOrder } from "../models/profile";
 import { User, UserFormValues } from "../models/user";
@@ -26,6 +27,11 @@ axios.interceptors.request.use(config => {
 
 axios.interceptors.response.use( async response => {
     await sleep();
+    const pagination = response.headers["pagination"];
+    if (pagination) {
+        response.data = new PaginatedResult(response.data, JSON.parse(pagination));
+        return response as AxiosResponse<PaginatedResult<any>>;
+    }
     return response;
 }, (error: AxiosError) => {
     const { data, status, statusText } = error.response!;
@@ -56,7 +62,7 @@ const requests = {
 };
 
 const Inventory = {
-    getAll: () => requests.get<InventoryItem[]>('/inventory'),
+    getAll: (params: URLSearchParams) => axios.get<PaginatedResult<InventoryItem[]>>('/inventory', {params}).then(responseBody),
     get: (id: string) => requests.get<InventoryItem>(`/inventory/${id}`),
     create: (body: InventoryItemFormValues) => requests.post<void>('/inventory', body),
     edit: (body: InventoryItemFormValues) => requests.put<void>(`/inventory/${body.id}`, body),

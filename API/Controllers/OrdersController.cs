@@ -5,6 +5,8 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using API.DTOs.OrderDTOs;
 using API.Entities;
+using API.Extensions;
+using API.Helpers;
 using API.Persistence;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
@@ -28,16 +30,31 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<OrderDto>>> GetAll()
+        public async Task<ActionResult<List<OrderDto>>> GetAll([FromQuery] OrderParams orderParams)
         {
-            var orders = await _context.Orders
+            var query = _context.Orders
                 .Include(o => o.OrderItems)
                 .ThenInclude(oi => oi.Product)
                 .Include(o => o.User)
-                .ToListAsync();
+                .AsQueryable();
 
+            if (orderParams.IsCompleted && !orderParams.IsInUse)
+            {
+                query = query.Where(o => o.OrderStatus == "Completed");
+            }
+            else if (orderParams.IsInUse && !orderParams.IsCompleted)
+            {
+                query = query.Where(o => o.OrderStatus == "In Use");
+            }
+            
+            var count = await query.CountAsync();
+            var totalPages = (int) Math.Ceiling(count / (double) orderParams.PageSize);
+            var orders = await query
+                .OrderBy(o => o.OrderCreatedAt)
+                .ToListAsync();
             var ordersToReturn = _mapper.Map<List<OrderDto>>(orders);
-            return ordersToReturn;
+            Response.AddPaginationHeader(count, orderParams.PageSize, orderParams.PageNumber, totalPages);
+            return Ok(ordersToReturn);
         }
 
         [HttpGet("{id}")]

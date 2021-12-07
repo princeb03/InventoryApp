@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using API.DTOs;
 using API.DTOs.InventoryItemDTOs;
 using API.Entities;
+using API.Extensions;
+using API.Helpers;
 using API.Persistence;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
@@ -25,10 +27,19 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll() 
+        public async Task<IActionResult> GetAll([FromQuery] PagingParams pagingParams) 
         {
-            var allItems = await _context.Inventory.OrderBy(i => i.ItemName).Include(i => i.Photos).ToListAsync();
-            var itemsToReturn = _mapper.Map<List<InventoryItemDto>>(allItems);
+            var query = _context.Inventory
+                .OrderBy(i => i.ItemName)
+                .Include(i => i.Photos)
+                .AsQueryable();
+            
+            var count = await query.CountAsync();
+            var totalPages = (int) Math.Ceiling(count/(double) pagingParams.PageSize);
+            var items = await query.Skip((pagingParams.PageNumber - 1) * pagingParams.PageSize).Take(pagingParams.PageSize).ToListAsync();
+            
+            var itemsToReturn = _mapper.Map<List<InventoryItemDto>>(items);
+            Response.AddPaginationHeader(count, pagingParams.PageSize, pagingParams.PageNumber, totalPages);
             return Ok(itemsToReturn);
         }
 
