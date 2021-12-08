@@ -1,5 +1,6 @@
 import { observer } from "mobx-react-lite";
 import { ChangeEvent, useState } from "react";
+import { toast } from "react-toastify";
 import { Button, Form } from "semantic-ui-react";
 import { InventoryItemFormValues } from "../../models/inventoryItem";
 import { useStore } from "../../stores/store";
@@ -13,7 +14,7 @@ export default observer(function ItemForm() {
     };
     const [itemData, setItemData] = useState<InventoryItemFormValues>(initialState);
     const { inventoryStore } = useStore();
-    const { createNew } = inventoryStore;
+    const { createNew, loading } = inventoryStore;
     
     function handleChange(e: ChangeEvent<HTMLInputElement>) {
         setItemData({ ...itemData, [e.currentTarget.name]: e.currentTarget.value});
@@ -22,6 +23,7 @@ export default observer(function ItemForm() {
     function handleSubmit() {
         createNew(itemData);
         setItemData(initialState);
+        toast.info('New Item Added', {autoClose: 1000});
     }
 
     return (
@@ -30,7 +32,7 @@ export default observer(function ItemForm() {
             <Form.Input name="itemDescription" value={itemData.itemDescription} label="Description" onChange={handleChange} />
             <Form.Input name="totalStock" value={itemData.totalStock} label="Total Stock" onChange={handleChange} required />
             <Form.Input name="availableStock" value={itemData.availableStock} label="Available Stock" onChange={handleChange} required />
-            <Button type="submit" content="Create Item" color='facebook' />
+            <Button loading={loading} type="submit" content="Create Item" color='facebook' />
         </Form>
     );
 })

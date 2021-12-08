@@ -9,7 +9,7 @@ import ItemCard from "./ItemCard";
 
 export default observer (function Dashboard() {
     const { inventoryStore, userStore } = useStore();
-    const { inventoryItems, getAll, loadingInitial, setPagingParams, pagination } = inventoryStore;
+    const { inventoryItems, getAll, loadingInitial, setPagingParams, pagination, resetStore } = inventoryStore;
     const [loadingNext, setLoadingNext] = useState(false);
 
     function handleGetNext() {
@@ -19,8 +19,9 @@ export default observer (function Dashboard() {
     }
 
     useEffect(() => {
+        resetStore();
         getAll();
-    }, [getAll, userStore.currentUser]);
+    }, [getAll, userStore.currentUser, resetStore]);
     if (loadingInitial && !loadingNext) return (<LoadingComponent content="Loading items..." />)
     return (
         <Fragment>
@@ -45,7 +46,7 @@ export default observer (function Dashboard() {
                     </InfiniteScroll>   
                 </Grid.Column>
                 <Grid.Column width={16}>
-                    <Loader inverted active={loadingNext} /> 
+                    <Loader  active={loadingNext} size='big' style={{marginTop: '1em', marginBottom: '5em'}} /> 
                 </Grid.Column>
             </Grid>
         </Fragment>

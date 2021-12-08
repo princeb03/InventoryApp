@@ -1,6 +1,7 @@
 import { observer } from "mobx-react-lite";
 import { ChangeEvent, useState } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 import { Card, CardContent, CardDescription, CardHeader, Form, Input, Image, CardMeta } from "semantic-ui-react";
 import { InventoryItem } from "../../models/inventoryItem";
 import { useStore } from "../../stores/store";
@@ -22,13 +23,19 @@ export default observer(function ItemCard({ item }: Props) {
         <Card fluid>
             <Image as={Link} to={`/items/${item.id}`} src={item.mainPhoto || '/assets/drill.jpeg'} />
             <CardContent>
-                <CardHeader as={Link} to={`/items/${item.id}`}>{item.itemName}</CardHeader>
+                <CardHeader 
+                    as={Link} 
+                    to={`/items/${item.id}`}
+                    style={{whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}}
+                >
+                    {item.itemName}
+                </CardHeader>
                 <CardMeta>
-                    <p>{item.itemDescription}</p>
+                    <p style={{whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}}>{item.itemDescription}</p>
                 </CardMeta>
                 <CardDescription>
-                    <p>Available: <strong style={{color: 'green'}}>{item.availableStock}</strong></p>
-                    <p>Total: <strong>{item.totalStock}</strong></p>
+                    <p><strong style={{color: 'green'}}>{item.availableStock}</strong>  Available</p>
+                    <p><strong>{item.totalStock}</strong>  Total Stock</p>
                 </CardDescription>
             </CardContent>
             <CardContent extra>
@@ -51,6 +58,7 @@ export default observer(function ItemCard({ item }: Props) {
                             style={{height: '100%'}}
                             onClick={() => {
                                 addToCart({product: item, quantity: quantity});
+                                toast.info(`${quantity} ${item.itemName} added to cart.`, {autoClose: 2000});
                             }}
                         />    
                     </Form.Group>

@@ -28,7 +28,7 @@ export default observer(function Profile() {
             {
                 currentProfile.orders.map((order, index) => (
                     <Segment key={index}>
-                        <Header as='h3' content={order.id} />
+                        <Header as={Link} to={`/orders/${order.id}`} content={order.id} />
                         <p>{order.orderStatus === 'Completed' ? <Label color='green' content='Completed' /> : <Label color='red' content='In Use' />}</p>
                         <p><strong>Created at:</strong> {order.orderCreatedAt}</p>
                         {order.orderStatus === 'Completed' && <p><strong>Completed at:</strong> {order.orderCompletedAt}</p>}

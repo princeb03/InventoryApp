@@ -6,6 +6,7 @@ import { ProfileOrder } from "../models/profile";
 
 export class OrderStore {
     cart: OrderItem[] = [];
+    loadingInitial = false;
     loading = false;
     currentOrder: ProfileOrder | null = null;
 
@@ -14,6 +15,13 @@ export class OrderStore {
     }
     
     addToCart = (orderItem: OrderItem) => {
+        for (let item of this.cart) {
+            if (item.product.id === orderItem.product.id) {
+                item.quantity += orderItem.quantity
+                this.saveCartToStorage();
+                return;
+            }
+        }
         this.cart.push(orderItem);
         this.saveCartToStorage();
     }
@@ -44,15 +52,15 @@ export class OrderStore {
 
     getOrder = async (id: string) => {
         try {
-            this.loading = true;
+            this.loadingInitial = true;
             const order = await agent.Orders.getOrder(id);
             runInAction(() => {
                 this.currentOrder = order;
-                this.loading = false;
+                this.loadingInitial = false;
             });
         } catch(err) {
             console.log(err);
-            this.loading = false;
+            this.loadingInitial = false;
         }
 
     }

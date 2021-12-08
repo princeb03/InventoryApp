@@ -33,7 +33,7 @@ export default observer(function ItemDetails() {
         uploadPhoto(file, currentItem!.id).then(() => setAddPhotoMode(false));
     }
 
-    if (loadingInitial) return (<LoadingComponent content='Loading Item...' />);
+    if (loadingInitial || currentItem === null) return (<LoadingComponent content='Loading Item...' />);
     return (
         <Fragment>
             <Image src={currentItem?.mainPhoto || '/assets/drill.jpeg'} 

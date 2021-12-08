@@ -2,6 +2,7 @@ import { makeAutoObservable, runInAction } from "mobx";
 import agent from "../api/agent";
 import { User, UserFormValues } from "../models/user";
 import { history } from '../index';
+import { store } from "./store";
 
 export class UserStore {
     currentUser: User | null = null;
@@ -43,6 +44,8 @@ export class UserStore {
     logout = () => {
         this.currentUser = null;
         localStorage.removeItem('inventoryToken');
+        store.orderStore.resetCart();
+        store.inventoryStore.resetStore();
         history.push('/');
     }
 

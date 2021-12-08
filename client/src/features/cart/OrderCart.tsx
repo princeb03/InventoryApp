@@ -1,12 +1,13 @@
 import { observer } from "mobx-react-lite"
 import { ChangeEvent, Fragment, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 import { Button, Grid, GridColumn, Header, Segment, SegmentGroup, Image, Form } from "semantic-ui-react";
 import { useStore } from "../../stores/store"
 
 export default observer(function OrderCart() {
     const { orderStore } = useStore();
-    const { cart, removeFromCart, placeOrder, setCart } = orderStore;
+    const { cart, removeFromCart, placeOrder, setCart, loading } = orderStore;
     const [orderNotes, setOrderNotes] = useState('');
 
     function handleChange(e: ChangeEvent<HTMLTextAreaElement>) {
@@ -44,19 +45,22 @@ export default observer(function OrderCart() {
                             <Segment key={index}>
                                 <Grid doubling stackable>
                                     <GridColumn width={2} verticalAlign='middle'>
-                                        <Image src='/assets/drill.jpeg' />
+                                        <Image as={Link} to={`/items/${orderItem.product.id}`} src='/assets/drill.jpeg' />
                                     </GridColumn>
                                     <GridColumn width={5} verticalAlign='middle'>
                                         <Header content={orderItem.product.itemName} />
                                         <p>{orderItem.product.itemDescription}</p>
                                     </GridColumn>
-                                    <GridColumn width={5} verticalAlign='middle'>
+                                    <GridColumn width={5} textAlign='center' verticalAlign='middle'>
                                         <p>{orderItem.quantity}</p>
                                     </GridColumn>
                                     <GridColumn width={4} verticalAlign='middle'>
                                         <Button floated='right' 
                                             content="Remove from cart" 
-                                            onClick={() => removeFromCart(index)}
+                                            onClick={() => {
+                                                removeFromCart(index);
+                                                toast.info('Removed from cart.', {autoClose:1500});
+                                            }}
                                             negative />
                                     </GridColumn>
                                 </Grid>
@@ -64,7 +68,7 @@ export default observer(function OrderCart() {
                         ))
                     }
                     </SegmentGroup>
-                    <Button size='huge' content='Checkout' color='facebook' onClick={handleSubmit}/>
+                    <Button loading={loading} size='huge' content='Checkout' color='facebook' onClick={handleSubmit}/>
                 </Fragment>
             }
             

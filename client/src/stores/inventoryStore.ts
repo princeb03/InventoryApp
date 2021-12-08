@@ -18,6 +18,12 @@ export class InventoryStore {
         makeAutoObservable(this);
     }
 
+    resetStore = () => {
+        this.inventoryRegistry.clear();
+        this.pagination = null;
+        this.pagingParams = new PagingParams();
+    }
+
     get axiosParams() {
         const params = new URLSearchParams();
         params.append('pageNumber', this.pagingParams.pageNumber.toString());
@@ -51,10 +57,15 @@ export class InventoryStore {
     }
 
     createNew = async (newItem: InventoryItemFormValues) => {
+        this.loading = true;
         try {
             await agent.Inventory.create(newItem);
+            runInAction(() => {
+                this.loading = false;
+            })
         } catch(err) {
             console.log(err);
+            this.loading = false;
         }
     }
 

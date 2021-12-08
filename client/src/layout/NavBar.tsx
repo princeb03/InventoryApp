@@ -10,7 +10,7 @@ export default observer(function NavBar() {
     return (
         <Menu fixed='top' inverted>
             <Container>
-                <MenuItem as={NavLink} to="/" content="Home"/>
+                <MenuItem exact as={NavLink} to="/" content="Home"/>
                 <MenuItem as={NavLink} to="/dashboard" content="Inventory"/>
                 <MenuItem as={NavLink} to="/create" content="Add to Inventory"/>
                 {

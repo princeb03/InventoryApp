@@ -2,6 +2,7 @@ import { observer } from "mobx-react-lite";
 import { Fragment, useEffect } from "react";
 import { useParams } from "react-router";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 import { Header, Table, Image, Button } from "semantic-ui-react";
 import LoadingComponent from "../../layout/LoadingComponent";
 import { useStore } from "../../stores/store";
@@ -9,12 +10,12 @@ import { useStore } from "../../stores/store";
 export default observer(function OrderDetails() {
     const { orderId } = useParams<{orderId: string}>();
     const { orderStore, userStore } = useStore();
-    const { getOrder, currentOrder, loading, toggleOrder } = orderStore;
+    const { getOrder, currentOrder, loading, loadingInitial, toggleOrder } = orderStore;
     useEffect(() => {
         getOrder(orderId);
     },[getOrder, orderId]);
 
-    if (currentOrder === null || loading) return <LoadingComponent content="Loading Order Details..." />
+    if (currentOrder === null || loadingInitial) return <LoadingComponent content="Loading Order Details..." />
     return (
         <Fragment>
             <Header as='h1' content={currentOrder.id} />
@@ -28,9 +29,13 @@ export default observer(function OrderDetails() {
                 currentOrder.orderStatus === 'Completed' ? 
                 <p><strong>Order Completed At: </strong>{currentOrder.orderCompletedAt}</p> :
                 <Button content='Complete Order' 
-                    positive 
+                    loading={loading}
+                    color='facebook' 
                     size='large' 
-                    onClick={() => toggleOrder(orderId)}
+                    onClick={() => {
+                        toggleOrder(orderId);
+                        toast.info('Order completed.', {autoClose: 1000});
+                    }}
                 />
             }
             <Header as='h2' content='Notes' />

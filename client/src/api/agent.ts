@@ -9,7 +9,7 @@ import { User, UserFormValues } from "../models/user";
 
 const sleep = () => {
     return new Promise(resolve => {
-        setTimeout(resolve, 500);
+        setTimeout(resolve, 1000);
     });
 };
 
