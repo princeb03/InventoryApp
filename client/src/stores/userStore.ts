@@ -20,7 +20,7 @@ export class UserStore {
             const user = await agent.Accounts.login(userForm);
             runInAction(() => {
                 this.currentUser = user;
-                localStorage.setItem('inventoryToken', this.currentUser.token);
+                localStorage.setItem('inventoryToken', this.currentUser.token!);
                 history.push('/dashboard');
             });
         } catch(err) {
@@ -33,7 +33,7 @@ export class UserStore {
             const newUser = await agent.Accounts.register(userForm);
             runInAction(() => {
                 this.currentUser = newUser;
-                localStorage.setItem('inventoryToken', this.currentUser.token);
+                localStorage.setItem('inventoryToken', this.currentUser.token!);
                 history.push('/dashboard');
             });
         } catch(err) {

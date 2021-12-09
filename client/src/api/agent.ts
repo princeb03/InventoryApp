@@ -91,7 +91,7 @@ const Orders = {
 };
 
 const Profiles = {
-    getProfile: (username: string) => requests.get<Profile>(`/profiles/${username}`),
+    getProfile: (username: string, params: URLSearchParams) => axios.get<PaginatedResult<Profile>>(`/profiles/${username}`, {params}).then(responseBody),
     getAll: () => requests.get<Profile[]>('/profiles')
 };
 
