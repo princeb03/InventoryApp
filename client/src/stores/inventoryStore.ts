@@ -1,4 +1,4 @@
-import { makeAutoObservable, runInAction } from "mobx";
+import { makeAutoObservable, reaction, runInAction } from "mobx";
 import agent from "../api/agent";
 import { InventoryItem, InventoryItemFormValues } from "../models/inventoryItem";
 import { Pagination, PagingParams } from "../models/pagination";
@@ -13,21 +13,32 @@ export class InventoryStore {
     uploading = false;
     pagination: Pagination | null = null;
     pagingParams = new PagingParams();
+    searchString = '';
 
     constructor() {
         makeAutoObservable(this);
+        reaction(
+            () => this.searchString,
+            () => {
+                this.pagingParams = new PagingParams();
+                this.inventoryRegistry.clear();
+                this.getAll();
+            }
+        )
     }
 
     resetStore = () => {
         this.inventoryRegistry.clear();
         this.pagination = null;
         this.pagingParams = new PagingParams();
+        this.searchString = '';
     }
 
     get axiosParams() {
         const params = new URLSearchParams();
         params.append('pageNumber', this.pagingParams.pageNumber.toString());
         params.append('pageSize', this.pagingParams.pageSize.toString());
+        params.append('searchString', this.searchString);
         return params;
     }
     
@@ -37,6 +48,10 @@ export class InventoryStore {
 
     setPagingParams = (pagingParams: PagingParams) => {
         this.pagingParams = pagingParams;
+    }
+
+    setSearchString = (value: string) => {
+        this.searchString = value;
     }
 
     getAll = async () => {

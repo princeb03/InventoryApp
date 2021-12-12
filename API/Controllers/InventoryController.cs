@@ -27,12 +27,18 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] PagingParams pagingParams) 
+        public async Task<IActionResult> GetAll([FromQuery] InventoryParams pagingParams) 
         {
+            
             var query = _context.Inventory
                 .OrderBy(i => i.ItemName)
                 .Include(i => i.Photos)
                 .AsQueryable();
+            
+            if (!String.IsNullOrWhiteSpace(pagingParams.SearchString)) 
+            {
+                query = query.Where(i => i.ItemName.ToLower().Contains(pagingParams.SearchString.Trim()));
+            }
             
             var count = await query.CountAsync();
             var totalPages = (int) Math.Ceiling(count/(double) pagingParams.PageSize);

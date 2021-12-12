@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite";
-import { Fragment, useEffect, useState } from "react";
-import { Header, Grid, Loader } from "semantic-ui-react";
+import { ChangeEvent, Fragment, useEffect, useState } from "react";
+import { Header, Grid, Loader, Form, Button } from "semantic-ui-react";
 import InfiniteScroll from 'react-infinite-scroller';
 import LoadingComponent from "../../layout/LoadingComponent";
 import { PagingParams } from "../../models/pagination";
@@ -9,8 +9,16 @@ import ItemCard from "./ItemCard";
 
 export default observer (function Dashboard() {
     const { inventoryStore, userStore } = useStore();
-    const { inventoryItems, getAll, loadingInitial, setPagingParams, pagination, resetStore } = inventoryStore;
+    const { inventoryItems, 
+        getAll, 
+        loadingInitial, 
+        setPagingParams, 
+        pagination, 
+        resetStore, 
+        setSearchString, 
+        searchString } = inventoryStore;
     const [loadingNext, setLoadingNext] = useState(false);
+    const [search, setSearch] = useState('');
 
     function handleGetNext() {
         setLoadingNext(true);
@@ -18,15 +26,68 @@ export default observer (function Dashboard() {
         getAll().then(() => setLoadingNext(false));
     }
 
+    function handleChange(e: ChangeEvent<HTMLInputElement>) {
+        setSearch(e.currentTarget.value);
+    }
+
+    function handleSubmit() {
+        setSearchString(search);
+    }
+
+    function handleBackToAll() {
+        setSearch('');
+        setSearchString('');
+    }
+
     useEffect(() => {
         resetStore();
         getAll();
     }, [getAll, userStore.currentUser, resetStore]);
+
     if (loadingInitial && !loadingNext) return (<LoadingComponent content="Loading items..." />)
     return (
         <Fragment>
-            <Header as='h1' style={{marginBottom: '3rem'}} content="All Items" />
+            <Header 
+                as='h1' 
+                // style={{marginBottom: '2rem'}} 
+                content="All Items" 
+            />
+            {
+                searchString !== '' && 
+                <Button content='Back to All' 
+                    style={{marginBottom: '1em'}}
+                    icon='arrow circle left' 
+                    color='grey' 
+                    size='mini' 
+                    onClick={handleBackToAll}
+                />
+            }
             <Grid>
+                <Grid.Row> 
+                    <Grid.Column width={16}>       
+                    <Form>   
+                        <Form.Group>          
+                            <Form.Input 
+                                icon='search'
+                                iconPosition='left'
+                                placeholder='Search by Item Name...'
+                                fluid
+                                value={search}
+                                onChange={handleChange}
+                                width={12}
+                            /> 
+                            <Form.Button 
+                                content="Search"
+                                fluid
+                                color='facebook'
+                                size='medium'
+                                onClick={handleSubmit}
+                                width={4}
+                            />
+                        </Form.Group>
+                    </Form>
+                    </Grid.Column>
+                </Grid.Row>
                 <Grid.Column width={16}>
                     <InfiniteScroll
                         pageStart={0}
