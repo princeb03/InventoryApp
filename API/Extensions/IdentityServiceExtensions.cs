@@ -8,6 +8,7 @@ using API.Interfaces;
 using API.Persistence;
 using API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -40,6 +41,14 @@ namespace API.Extensions
                         IssuerSigningKey = key
                     };
                 });
+
+            services.AddAuthorization(options => 
+            {
+                options.AddPolicy("isAdmin", policy => policy.RequireClaim("canEdit"));
+                options.AddPolicy("isUser", policy => {
+                    policy.RequireAuthenticatedUser();
+                });
+            });
             services.AddScoped<ITokenService, TokenService>();
             
             return services;

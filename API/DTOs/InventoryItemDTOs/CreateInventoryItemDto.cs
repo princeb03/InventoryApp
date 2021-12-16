@@ -13,10 +13,10 @@ namespace API.DTOs.InventoryItemDTOs
         public string ItemDescription { get; set; }
         [Required(ErrorMessage = "Total Stock number required.")]
         [Range(0, 99999)]
-        public int TotalStock { get; set; }
+        public int? TotalStock { get; set; }
         [Required]
         [Range(0, 99999)]
-        public int AvailableStock { get; set; }
+        public int? AvailableStock { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {

@@ -9,6 +9,7 @@ using API.Extensions;
 using API.Helpers;
 using API.Persistence;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +18,7 @@ namespace API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Policy = "isAdmin")]
     public class OrdersController: ControllerBase
     {
         private readonly DataContext _context;
@@ -128,6 +130,23 @@ namespace API.Controllers
             var result = await _context.SaveChangesAsync() > 0;
             if (result) return NoContent();
             return BadRequest("Failed to updated order status.");
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize(Policy = "isAdmin")]
+        public async Task<IActionResult> DeleteOrder(Guid id)
+        {
+            var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == id);
+            if (order == null) return NotFound("Order not found.");
+            foreach (var orderItem in order.OrderItems)
+            {
+                var product = await _context.Inventory.FindAsync(orderItem.ProductId);
+                product.AvailableStock += orderItem.Quantity;
+            }
+            _context.Orders.Remove(order);
+            var success = await _context.SaveChangesAsync() > 0;
+            if (success) return NoContent();
+            return BadRequest("Problem deleting order.");
         }
     }
 }

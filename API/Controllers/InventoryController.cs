@@ -9,6 +9,8 @@ using API.Extensions;
 using API.Helpers;
 using API.Persistence;
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,6 +18,7 @@ namespace API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Policy = "isUser")]
     public class InventoryController: ControllerBase
     {
         private readonly DataContext _context;
@@ -37,7 +40,7 @@ namespace API.Controllers
             
             if (!String.IsNullOrWhiteSpace(pagingParams.SearchString)) 
             {
-                query = query.Where(i => i.ItemName.ToLower().Contains(pagingParams.SearchString.Trim()));
+                query = query.Where(i => i.ItemName.ToLower().Contains(pagingParams.SearchString.Trim().ToLower()));
             }
             
             var count = await query.CountAsync();
@@ -62,23 +65,25 @@ namespace API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "isAdmin")]
         public async Task<IActionResult> CreateItem(CreateInventoryItemDto newItem)
         {
             var item = _mapper.Map<InventoryItem>(newItem);
-            Console.WriteLine(item);
             _context.Inventory.Add(item);
             await _context.SaveChangesAsync();
             return NoContent();
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateItem(CreateInventoryItemDto item, Guid id)
+        [Authorize(Policy = "isAdmin")]
+        public async Task<IActionResult> UpdateItem([FromBody] CreateInventoryItemDto item, [FromRoute] Guid id)
         {
             var itemToUpdate = await _context.Inventory.FindAsync(id);
             if (itemToUpdate == null) return NotFound("Item not found.");
             _mapper.Map(item, itemToUpdate);
-            await _context.SaveChangesAsync();
-            return NoContent();
+            var success = await _context.SaveChangesAsync() > 0;
+            if (success) return NoContent();
+            return BadRequest("Problem updating item details.");
         }
 
     }

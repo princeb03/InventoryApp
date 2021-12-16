@@ -6,9 +6,12 @@ using System.Threading.Tasks;
 using API.DTOs;
 using API.DTOs.AccountDTOs;
 using API.Entities;
+using API.Extensions;
+using API.Helpers;
 using API.Interfaces;
 using API.Persistence;
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +21,7 @@ namespace API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [AllowAnonymous]
+    [Authorize(Policy = "isAdmin")]
     public class AccountsController: ControllerBase
     {
         private readonly DataContext _context;
@@ -57,10 +60,11 @@ namespace API.Controllers
                 UserName = newUser.Username
             };
             var result = await _userManager.CreateAsync(user, newUser.Password);
-            if (result.Succeeded) return CreateUserDto(user);
+            if (result.Succeeded) return await CreateUserDto(user);
             return BadRequest("Registration failed.");
         }
 
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<ActionResult<UserDto>> Login(LoginDto loginDetails)
         {
@@ -70,33 +74,78 @@ namespace API.Controllers
                 return Unauthorized("Incorrect e-mail/password.");
             }
             var result = await _signInManager.CheckPasswordSignInAsync(user, loginDetails.Password, false);
-            if (result.Succeeded) return CreateUserDto(user);
+            if (result.Succeeded) return await CreateUserDto(user);
             return Unauthorized("Incorrect e-mail/password.");
         }
-        
-        [HttpGet]
-        public async Task<ActionResult<List<AppUser>>> GetAllUsers()
-        {
-            var users = await _userManager.Users.ToListAsync();
-            return Ok(users);
-        }
 
+        [AllowAnonymous]
         [HttpGet("current")]
-        public async Task<ActionResult<UserDto>> GetCurrentUser() 
+        public async Task<IActionResult> GetCurrentUser() 
         {
             var currentUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
             if (currentUser == null) return NoContent();
-            return CreateUserDto(currentUser);
+            return Ok(CreateUserDto(currentUser));
+        }
+        
+        [HttpGet]
+        public async Task<IActionResult> GetAllUsers([FromQuery] ProfileParams pagingParams)
+        {
+            var query = _userManager.Users.OrderBy(u => u.DisplayName).AsQueryable();
+
+            if (!String.IsNullOrWhiteSpace(pagingParams.SearchString)) 
+            {
+                query = query.Where(u => u.DisplayName.ToLower().Contains(pagingParams.SearchString.Trim().ToLower()));
+            }
+
+            var count = await query.CountAsync();
+            var totalPages = (int) Math.Ceiling(count/(double)pagingParams.PageSize);
+            var users = query
+                .Skip((pagingParams.PageNumber - 1) * pagingParams.PageSize)
+                .Take(pagingParams.PageSize)
+                .ToListAsync();
+            Response.AddPaginationHeader(count, pagingParams.PageSize, pagingParams.PageNumber, totalPages);
+            var usersToReturn = _mapper.Map<List<UserDto>>(users);
+            return Ok(usersToReturn);
         }
 
-        private UserDto CreateUserDto(AppUser user)
+        [HttpPost("{username}/makeAdmin")]
+        public async Task<IActionResult> MakeAdmin(string username)
+        {
+            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.UserName == username);
+            if (user == null) return NotFound();
+        
+            await _userManager.AddClaimAsync(user, new Claim("canEdit", "canEdit"));
+            return NoContent();
+        }
+
+        [HttpPost("{username}/removeAdmin")]
+        public async Task<IActionResult> RemoveAdmin(string username)
+        {
+            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.UserName == username);
+            if (user == null) return NotFound();
+
+            await _userManager.RemoveClaimAsync(user, new Claim("canEdit", "canEdit"));
+            return NoContent();
+        }
+
+        [HttpDelete("{username}")]
+        public async Task<IActionResult> DeleteUser(string username)
+        {
+            var userToDelete = await _userManager.Users.FirstOrDefaultAsync(u => u.UserName == username);
+            if (userToDelete == null) return NotFound();
+            var result = await _userManager.DeleteAsync(userToDelete);
+            if (result.Succeeded) return NoContent();
+            return BadRequest("Problem deleting user.");
+        }
+
+        private async Task<UserDto> CreateUserDto(AppUser user)
         {
             return new UserDto
             {
                 DisplayName = user.DisplayName,
                 Username = user.UserName,
                 Email = user.Email,
-                Token = _tokenService.CreateToken(user)
+                Token = await _tokenService.CreateToken(user)
             };
         }
     }
