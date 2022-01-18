@@ -87,6 +87,20 @@ export class OrderStore {
         if (savedCart) this.cart = JSON.parse(savedCart);
     }
 
+    editNotes = async (orderId: string,updatedNotes: string) => {
+        this.loading = true;
+        try {
+            await agent.Orders.editNotes(orderId, updatedNotes);
+            runInAction(() => {
+                this.getOrder(orderId);
+                this.loading = false;
+            });
+        } catch(err) {
+            console.log(err);
+            this.loading = false;
+        }
+    }
+
     toggleOrder = async (id: string) => {
         try {
             this.loading = true;

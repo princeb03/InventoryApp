@@ -3,6 +3,9 @@ import agent from "../api/agent";
 import { InventoryItem, InventoryItemFormValues } from "../models/inventoryItem";
 import { Pagination, PagingParams } from "../models/pagination";
 import Photo from "../models/photo";
+import { history } from "..";
+import { store } from "./store";
+import { toast } from "react-toastify";
 
 export class InventoryStore {
     inventoryRegistry = new Map<string, InventoryItem>();
@@ -74,10 +77,30 @@ export class InventoryStore {
     createNew = async (newItem: InventoryItemFormValues) => {
         this.loading = true;
         try {
-            await agent.Inventory.create(newItem);
+            const itemId = await agent.Inventory.create(newItem);
             runInAction(() => {
                 this.loading = false;
-            })
+            });
+            history.push(`/items/${itemId}`);
+            store.modalStore.closeModal();
+            toast.info('New Item Added', {autoClose: 1000});
+        } catch(err) {
+            console.log(err);
+            this.loading = false;
+        }
+    }
+
+    updateItem = async (itemDetails: InventoryItemFormValues) => {
+        this.loading = true;
+        const id = this.currentItem!.id;
+        try {
+            await agent.Inventory.update(itemDetails);
+            runInAction(() => {
+                this.loading = false;
+                store.modalStore.closeModal();
+                this.getDetails(id);
+            });            
+            toast.info('Item Updated', {autoClose: 1000});
         } catch(err) {
             console.log(err);
             this.loading = false;
@@ -152,6 +175,4 @@ export class InventoryStore {
             this.loading = false;
         }
     }
-
-
 }

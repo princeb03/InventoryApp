@@ -6,9 +6,10 @@ import LoadingComponent from "../../layout/LoadingComponent";
 import { PagingParams } from "../../models/pagination";
 import { useStore } from "../../stores/store";
 import ItemCard from "./ItemCard";
+import ItemForm from "./ItemForm";
 
 export default observer (function Dashboard() {
-    const { inventoryStore, userStore } = useStore();
+    const { inventoryStore, userStore, modalStore } = useStore();
     const { inventoryItems, 
         getAll, 
         loadingInitial, 
@@ -49,9 +50,19 @@ export default observer (function Dashboard() {
         <Fragment>
             <Header 
                 as='h1' 
-                // style={{marginBottom: '2rem'}} 
                 content="All Items" 
             />
+            {
+                userStore.currentUser?.role === "admin" && 
+                <Button 
+                content='Create new item'
+                color='facebook'
+                size='large'
+                style={{marginBottom: '1em'}}
+                onClick={() => modalStore.openModal(<ItemForm />)}
+            />
+            }
+            
             {
                 searchString !== '' && 
                 <Button content='Back to All' 

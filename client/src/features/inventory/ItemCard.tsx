@@ -31,7 +31,7 @@ export default observer(function ItemCard({ item }: Props) {
                     {item.itemName}
                 </CardHeader>
                 <CardMeta>
-                    <p style={{whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}}>{item.itemDescription}</p>
+                    <p style={{whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}}>{item.itemDescription ? item.itemDescription  : 'No description for this item.'}</p>
                 </CardMeta>
                 <CardDescription>
                     <p><strong style={{color: 'green'}}>{item.availableStock}</strong>  Available</p>
@@ -45,6 +45,8 @@ export default observer(function ItemCard({ item }: Props) {
                             <Input 
                                 placeholder="Amount" 
                                 type="number" 
+                                min="0"
+                                step="1"
                                 name="quantity"
                                 value={quantity}
                                 onChange={handleChange}
@@ -57,8 +59,12 @@ export default observer(function ItemCard({ item }: Props) {
                             fluid
                             style={{height: '100%'}}
                             onClick={() => {
-                                addToCart({product: item, quantity: quantity});
-                                toast.info(`${quantity} ${item.itemName} added to cart.`, {autoClose: 2000});
+                                if (quantity > item.availableStock || quantity <= 0 || quantity % 1 !== 0) {
+                                    toast.error('Invalid quantity.', {autoClose: 2000});
+                                } else {
+                                    addToCart({product: item, quantity: quantity});
+                                    toast.info(`${quantity} ${item.itemName} added to cart.`, {autoClose: 2000});
+                                }
                             }}
                         />    
                     </Form.Group>

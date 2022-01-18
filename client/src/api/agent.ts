@@ -64,8 +64,8 @@ const requests = {
 const Inventory = {
     getAll: (params: URLSearchParams) => axios.get<PaginatedResult<InventoryItem[]>>('/inventory', {params}).then(responseBody),
     get: (id: string) => requests.get<InventoryItem>(`/inventory/${id}`),
-    create: (body: InventoryItemFormValues) => requests.post<void>('/inventory', body),
-    edit: (body: InventoryItemFormValues) => requests.put<void>(`/inventory/${body.id}`, body),
+    create: (body: InventoryItemFormValues) => requests.post<string>('/inventory', body),
+    update: (body: InventoryItemFormValues) => requests.put<void>(`/inventory/${body.id}`, body),
     uploadPhoto: (file: Blob, itemId: string) => {
         let formData = new FormData();
         formData.append('File', file);
@@ -79,20 +79,22 @@ const Inventory = {
 
 const Accounts = {
     login: (user: UserFormValues) => requests.post<User>('/accounts/login', user),
-    register: (user: UserFormValues) => requests.post<User>('/accounts/register', user),
-    getCurrent: () => requests.get<User>('/accounts/current')
+    register: (user: UserFormValues) => requests.post<void>('/accounts/register', user),
+    getCurrent: () => requests.get<User>('/accounts/current'),
+    getAll: (params: URLSearchParams) => axios.get<PaginatedResult<User[]>>('/accounts', {params}).then(responseBody),
+    update: (user: UserFormValues, username: string) => requests.put<string>(`/accounts/${username}`, user)
 };
 
 const Orders = {
     createOrder: (order: CreateOrderDto) => requests.post<void>('/orders', order),
     getAll: () => requests.get<any>('/orders'),
     toggleOrder: (id: string) => requests.put<void>(`/orders/${id}/complete`, {}),
-    getOrder: (id: string) => requests.get<ProfileOrder>(`/orders/${id}`)
+    getOrder: (id: string) => requests.get<ProfileOrder>(`/orders/${id}`),
+    editNotes: (id: string, notes: string) => requests.put<void>(`/orders/${id}/notes`, {notes})
 };
 
 const Profiles = {
-    getProfile: (username: string, params: URLSearchParams) => axios.get<PaginatedResult<Profile>>(`/profiles/${username}`, {params}).then(responseBody),
-    getAll: () => requests.get<Profile[]>('/profiles')
+    getProfile: (username: string, params: URLSearchParams) => axios.get<PaginatedResult<Profile>>(`/profiles/${username}`, {params}).then(responseBody)
 };
 
 const agent = {

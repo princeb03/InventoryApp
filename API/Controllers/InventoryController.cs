@@ -34,7 +34,7 @@ namespace API.Controllers
         {
             
             var query = _context.Inventory
-                .OrderBy(i => i.ItemName)
+                .OrderBy(i => i.ItemName.ToLower())
                 .Include(i => i.Photos)
                 .AsQueryable();
             
@@ -71,7 +71,7 @@ namespace API.Controllers
             var item = _mapper.Map<InventoryItem>(newItem);
             _context.Inventory.Add(item);
             await _context.SaveChangesAsync();
-            return NoContent();
+            return Ok(item.Id);
         }
 
         [HttpPut("{id}")]
@@ -85,6 +85,5 @@ namespace API.Controllers
             if (success) return NoContent();
             return BadRequest("Problem updating item details.");
         }
-
     }
 }

@@ -12,7 +12,9 @@ export default observer(function NavBar() {
             <Container>
                 <MenuItem exact as={NavLink} to="/" content="Home"/>
                 <MenuItem as={NavLink} to="/dashboard" content="Inventory"/>
-                <MenuItem as={NavLink} to="/create" content="Add to Inventory"/>
+                {
+                    currentUser?.role === 'admin' && <MenuItem as={NavLink} to="/users" content="Users"/>
+                }
                 {
                     isLoggedIn && 
                     <Fragment>

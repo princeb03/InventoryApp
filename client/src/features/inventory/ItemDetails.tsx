@@ -7,10 +7,11 @@ import LoadingComponent from "../../layout/LoadingComponent";
 import Photo from "../../models/photo";
 import { useStore } from "../../stores/store";
 import PhotoUploadWidget from "../photos/PhotoUploadWidget";
+import EditItemForm from "./EditItemForm";
 
 export default observer(function ItemDetails() {
     const {id} = useParams<{id: string}>();
-    const { inventoryStore } = useStore();
+    const { inventoryStore, modalStore, userStore } = useStore();
     const { getDetails, currentItem, loadingInitial, loading, setMainPhoto, deletePhoto, uploadPhoto, uploading } = inventoryStore;
     const [addPhotoMode, setAddPhotoMode] = useState(false);
     const [target, setTarget] = useState("");
@@ -42,7 +43,26 @@ export default observer(function ItemDetails() {
             />
             <Button as={Link} to='/dashboard' size='medium' content='Back to Items' color='grey' icon='arrow circle left'/>
             <Header as='h1' content={currentItem?.itemName}  />
-            <p>{currentItem?.itemDescription}</p>
+            {
+                userStore.currentUser?.role === "admin" && 
+                <Button
+                    content='Edit Item Details'
+                    color='facebook'
+                    size='large'
+                    style={{marginBottom: '1em'}}
+                    onClick={() => modalStore.openModal(
+                        <EditItemForm 
+                            id={currentItem.id}
+                            itemName={currentItem.itemName}
+                            itemDescription={currentItem.itemDescription}
+                            totalStock={currentItem.totalStock.toString()}
+                            availableStock={currentItem.availableStock.toString()}
+                        />
+                    )}
+                />
+            }
+            
+            <p>{currentItem?.itemDescription ? currentItem.itemDescription : "No description yet."}</p>
             
             <Header as='h2' content='Stock' />
             <p><strong>Total: </strong>{currentItem?.totalStock}</p>
@@ -90,7 +110,7 @@ export default observer(function ItemDetails() {
             
 
             <Header as='h2' content='Orders'  />
-            <p>Orders go here</p>
+            <p>To be implemented</p>
         </Fragment>
     );
 });

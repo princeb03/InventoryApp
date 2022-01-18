@@ -1,19 +1,31 @@
 import { observer } from "mobx-react-lite";
-import { Fragment, useEffect } from "react";
+import { ChangeEvent, Fragment, useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
-import { Header, Table, Image, Button } from "semantic-ui-react";
+import { Header, Table, Image, Button, Form } from "semantic-ui-react";
 import LoadingComponent from "../../layout/LoadingComponent";
 import { useStore } from "../../stores/store";
 
 export default observer(function OrderDetails() {
     const { orderId } = useParams<{orderId: string}>();
     const { orderStore, userStore } = useStore();
-    const { getOrder, currentOrder, loading, loadingInitial, toggleOrder } = orderStore;
+    const { getOrder, currentOrder, loading, loadingInitial, toggleOrder, editNotes } = orderStore;
+    const [orderNotes, setOrderNotes] = useState("");
+    const [editMode, setEditMode] = useState(false);
     useEffect(() => {
         getOrder(orderId);
-    },[getOrder, orderId]);
+        setEditMode(false);
+        setOrderNotes(currentOrder?.notes ? currentOrder.notes : "");
+    },[getOrder, orderId, currentOrder?.notes]);
+
+    function handleChange(e: ChangeEvent<HTMLTextAreaElement>) {
+        setOrderNotes(e.currentTarget.value);
+    }
+
+    function handleSubmit() {
+        editNotes(orderId, orderNotes);
+    }
 
     if (currentOrder === null || loadingInitial) return <LoadingComponent content="Loading Order Details..." />
     return (
@@ -39,8 +51,22 @@ export default observer(function OrderDetails() {
                 />
             }
             <Header as='h2' content='Notes' />
-            <p>{currentOrder.notes}</p>
-            <Button color='facebook' content='Edit Notes' />
+            {
+                editMode ? 
+                <Form>
+                    <Form.TextArea placeholder="Type order notes here..." rows={4} value={orderNotes} onChange={handleChange} />
+                    <Button content='Close' color='grey' 
+                        onClick={() => setEditMode(false)}
+                    />
+                    <Button type='submit' content='Submit' color='facebook' onClick={handleSubmit} loading={loading} />
+                </Form> :
+                <Fragment>
+                    <p>{currentOrder.notes}</p>
+                    <Button color='facebook' content='Edit Notes' 
+                        onClick={() => setEditMode(true)}
+                    />
+                </Fragment>
+            }
             <Header as='h2' content='Items' />
             <Table size='large'>
                 <Table.Header>

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using API.DTOs.OrderDTOs;
 using API.DTOs.ProfileDTOs;
@@ -9,6 +10,7 @@ using API.Extensions;
 using API.Helpers;
 using API.Persistence;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +19,7 @@ namespace API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Policy = "isUser")]
     public class ProfilesController : ControllerBase
     {
         private readonly DataContext _context;
@@ -31,8 +34,10 @@ namespace API.Controllers
         [HttpGet("{username}")]
         public async Task<IActionResult> GetProfile(string username, [FromQuery] OrderParams orderParams)
         {
+            
             var user = await _userManager.Users.FirstOrDefaultAsync(u => u.UserName == username);
             if (user == null) return NotFound("User notfound.");
+            if (user.Id != User.FindFirstValue(ClaimTypes.NameIdentifier) && !User.IsInRole("admin")) return Unauthorized();
             var query = _context.Orders
                 .Where(o => o.UserId == user.Id)
                 .Include(o => o.OrderItems)

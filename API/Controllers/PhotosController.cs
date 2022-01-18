@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using API.Entities;
 using API.Interfaces;
 using API.Persistence;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -54,6 +55,7 @@ namespace API.Controllers
         }
 
         [HttpDelete("{itemId}/{photoId}")]
+        [Authorize(Policy = "isAdmin")]
         public async Task<IActionResult> Delete(Guid itemId, string photoId )
         {
             var inventoryItem = await _context.Inventory.Include(i => i.Photos).FirstOrDefaultAsync(i => i.Id == itemId);
@@ -75,6 +77,7 @@ namespace API.Controllers
         }
 
         [HttpPost("{itemId}/{photoId}/setMain")]
+        [Authorize(Policy = "isAdmin")]
         public async Task<IActionResult> SetMain(string photoId, Guid itemId)
         {
             var inventoryItem = await _context.Inventory.Include(i => i.Photos)

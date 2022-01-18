@@ -2,7 +2,10 @@ import { makeAutoObservable, reaction, runInAction } from "mobx";
 import agent from "../api/agent";
 import { Pagination, PagingParams } from "../models/pagination";
 import { Profile, ProfileOrder } from "../models/profile";
-import { User } from "../models/user";
+import { User, UserFormValues } from "../models/user";
+import { store } from "./store";
+import { history } from "..";
+import { toast } from "react-toastify";
 
 export class ProfileStore {
     loading = false;
@@ -29,6 +32,8 @@ export class ProfileStore {
         this.pagingParams = new PagingParams(1,4);
         this.orderRegistry.clear();
         this.profileUser = null;
+        this.orderFilters.clear();
+        this.orderFilters.set('all', true);
     }
 
     get axiosParams() {
@@ -71,10 +76,6 @@ export class ProfileStore {
         this.pagingParams = pagingParams;
     }
 
-    getProfiles = async () => {
-        return 'this contains the profiles';    // future implementation
-    }
-
     getProfile = async (username: string) => {
         try {
             this.loading = true;
@@ -97,6 +98,23 @@ export class ProfileStore {
             runInAction(() => {
                 this.loading = false;
             })
+        }
+    }
+    
+    updateUser = async (userForm: UserFormValues) => {
+        try {
+            this.loading = true;
+            userForm.password = 'placeholder';
+            const updatedUsername = await agent.Accounts.update(userForm, this.profileUser!.username);
+            runInAction(() => {
+                this.loading = false;
+            });
+            history.push(`/profiles/${updatedUsername}`);
+            store.modalStore.closeModal();
+            toast.info('User updated', {autoClose: 1000});
+        } catch(err) {
+            console.log(err);
+            this.loading = false;
         }
     }
 }

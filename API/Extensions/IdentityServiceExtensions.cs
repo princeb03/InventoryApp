@@ -44,7 +44,7 @@ namespace API.Extensions
 
             services.AddAuthorization(options => 
             {
-                options.AddPolicy("isAdmin", policy => policy.RequireClaim("canEdit"));
+                options.AddPolicy("isAdmin", policy => policy.RequireRole("admin"));
                 options.AddPolicy("isUser", policy => {
                     policy.RequireAuthenticatedUser();
                 });

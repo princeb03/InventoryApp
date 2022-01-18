@@ -34,7 +34,8 @@ namespace API.Helpers
                 .ForMember(u => u.DisplayName, o => o.MapFrom(u => u.DisplayName))
                 .ForMember(u => u.Email, o => o.MapFrom(u => u.Email))
                 .ForMember(u => u.Username, o => o.MapFrom(u => u.UserName))
-                .ForMember(u => u.Token, o => o.Ignore());
+                .ForMember(u => u.Token, o => o.Ignore())
+                .ForMember(u => u.Role, o => o.Ignore());
         }
     }
 }

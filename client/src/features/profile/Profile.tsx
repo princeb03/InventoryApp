@@ -7,12 +7,13 @@ import { Button, Grid, Header, Label, Loader, Segment } from "semantic-ui-react"
 import LoadingComponent from "../../layout/LoadingComponent";
 import { PagingParams } from "../../models/pagination";
 import { useStore } from "../../stores/store";
+import ProfileDetailsForm from "./ProfileDetailsForm";
 import ProfileOrderFilters from "./ProfileOrderFilters";
 
 export default observer(function Profile() {
     const { username } = useParams<{username: string}>();
     const [loadingNext, setLoadingNext] = useState(false);
-    const { profileStore } = useStore();
+    const { profileStore, modalStore, userStore } = useStore();
     const { 
         getProfile, 
         profileUser,
@@ -39,13 +40,32 @@ export default observer(function Profile() {
         <Fragment>
             <Header as='h1' content={profileUser.displayName} />
             <Header as='h2' content='Details' />
-            <p>{`E-mail: ${profileUser.email}`}</p>
-            <p>{`Username: ${profileUser.username}`}</p>
-            <p>{`Display Name: ${profileUser.displayName}`}</p>
-            <Button content='Edit Details' color='facebook' />
+            <Fragment>
+                <p><strong>E-mail: </strong>{profileUser.email}</p>
+                <p><strong>Username: </strong>{profileUser.username}</p>
+                <p><strong>Display Name: </strong>{profileUser.displayName}</p>
+                {
+                    userStore.currentUser?.role === "admin" && 
+                    <Button 
+                        content='Edit Details' 
+                        color='facebook' 
+                        onClick={() => modalStore.openModal(
+                            <ProfileDetailsForm 
+                                email={profileUser.email} 
+                                displayName={profileUser.displayName}
+                                username={profileUser.username}
+                            />
+                            )
+                        }
+                    />
+                }
+                
+            </Fragment>
+            
             <Header as='h2' content='My Orders' />
             <Grid>
                 <Grid.Column width={11}>
+                    {profileOrders.length >= 1 ?
                     <InfiniteScroll
                         pageStart={0}
                         loadMore={handleGetNext}
@@ -59,7 +79,7 @@ export default observer(function Profile() {
                                     <Header as={Link} to={`/orders/${order.id}`} content={order.id} style={{display:'block', marginBottom: '0.3em'}}/>
                                     {order.orderStatus === 'Completed' ? 
                                         <Label color='green' content='Completed' style={{marginBottom:'1em'}} /> : 
-                                        <Label color='red' content='In Use' />}
+                                        <Label color='red' content='In Use' style={{marginBottom:'1em'}}/>}
                                     <p><strong>Created at:</strong> {order.orderCreatedAt}</p>
                                     {order.orderStatus === 'Completed' && <p><strong>Completed at:</strong> {order.orderCompletedAt}</p>}
                                     <Button 
@@ -73,7 +93,9 @@ export default observer(function Profile() {
                             ))
                         }
                         </Segment.Group>
-                    </InfiniteScroll>
+                    </InfiniteScroll> : <Header content='No orders.' />
+                    } 
+                    
                 </Grid.Column>
                 <Grid.Column width={5}>
                     <ProfileOrderFilters />

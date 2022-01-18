@@ -18,7 +18,7 @@ namespace API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Policy = "isAdmin")]
+    [Authorize(Policy = "isUser")]
     public class OrdersController: ControllerBase
     {
         private readonly DataContext _context;
@@ -31,10 +31,12 @@ namespace API.Controllers
             _mapper = mapper;
         }
 
+        [Authorize(Policy = "isAdmin")]
         [HttpGet]
         public async Task<ActionResult<List<OrderDto>>> GetAll([FromQuery] OrderParams orderParams)
         {
             var query = _context.Orders
+                .OrderBy(o => o.OrderCreatedAt)
                 .Include(o => o.OrderItems)
                 .ThenInclude(oi => oi.Product)
                 .Include(o => o.User)
@@ -52,7 +54,8 @@ namespace API.Controllers
             var count = await query.CountAsync();
             var totalPages = (int) Math.Ceiling(count / (double) orderParams.PageSize);
             var orders = await query
-                .OrderBy(o => o.OrderCreatedAt)
+                .Skip((orderParams.PageNumber - 1) * orderParams.PageSize)
+                .Take(orderParams.PageSize)
                 .ToListAsync();
             var ordersToReturn = _mapper.Map<List<OrderDto>>(orders);
             Response.AddPaginationHeader(count, orderParams.PageSize, orderParams.PageNumber, totalPages);
@@ -68,7 +71,7 @@ namespace API.Controllers
                 .ThenInclude(p => p.Photos)
                 .FirstOrDefaultAsync(o => o.Id == id);
             if (order == null) return NotFound("Order not found.");
-            if (order.UserId != User.FindFirstValue(ClaimTypes.NameIdentifier)) return Unauthorized("Order does not belong to user.");
+            if (order.UserId != User.FindFirstValue(ClaimTypes.NameIdentifier) && !User.IsInRole("admin")) return Unauthorized("Order does not belong to user.");
             var orderToReturn = _mapper.Map<OrderDto>(order);
             return Ok(orderToReturn);
         }
@@ -118,7 +121,7 @@ namespace API.Controllers
                 .Include(o => o.OrderItems)
                 .FirstOrDefaultAsync(o => o.Id == id);
             if (order == null) return NotFound("Order not found.");
-            if (order.UserId != User.FindFirstValue(ClaimTypes.NameIdentifier)) return Unauthorized("Order does not belong to user.");
+            if (order.UserId != User.FindFirstValue(ClaimTypes.NameIdentifier) && !User.IsInRole("admin")) return Unauthorized("Order does not belong to user.");
             if (order.OrderStatus == "Completed") return BadRequest("Order already completed.");
             foreach (var orderItem in order.OrderItems)
             {
@@ -130,6 +133,18 @@ namespace API.Controllers
             var result = await _context.SaveChangesAsync() > 0;
             if (result) return NoContent();
             return BadRequest("Failed to updated order status.");
+        }
+
+        [HttpPut("{id}/notes")]
+        public async Task<IActionResult> EditOrderNotes(Guid id, [FromBody] EditOrderDto updateData)
+        {
+            var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == id);
+            if (order == null) return NotFound();
+            if (order.UserId != User.FindFirstValue(ClaimTypes.NameIdentifier) && !User.IsInRole("admin")) return Unauthorized("Order does not belong to user.");
+            order.Notes = updateData.Notes.Trim();
+            var success = await _context.SaveChangesAsync() > 0;
+            if (success) return NoContent();
+            return BadRequest("Problem updating order notes.");
         }
 
         [HttpDelete("{id}")]

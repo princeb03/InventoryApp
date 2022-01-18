@@ -41,7 +41,7 @@ namespace API.Controllers
             _tokenService = tokenService;
             _mapper = mapper;
         }
-
+        
         [HttpPost("register")]
         public async Task<ActionResult<UserDto>> Register(RegisterDto newUser)
         {
@@ -60,8 +60,38 @@ namespace API.Controllers
                 UserName = newUser.Username
             };
             var result = await _userManager.CreateAsync(user, newUser.Password);
-            if (result.Succeeded) return await CreateUserDto(user);
+            if (result.Succeeded) return NoContent();
             return BadRequest("Registration failed.");
+        }
+
+        [HttpPut("{username}")]
+        public async Task<IActionResult> EditUser(string username, [FromBody] RegisterDto updatedDetails)
+        {
+            var user = await _userManager.Users.FirstOrDefaultAsync(x => x.UserName == username);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+            user.UserName = updatedDetails.Username;
+            user.Email = updatedDetails.Email;
+            user.DisplayName = updatedDetails.DisplayName;
+            var result = await _context.SaveChangesAsync() > 0;
+            if (result) return Ok(updatedDetails.Username);
+            return BadRequest("Problem updating user details.");
+        }
+
+        [HttpPut("{username}/changePassword")]
+        public async Task<IActionResult> ChangePassword(string username, [FromBody] string newPassword)
+        {
+            var user = await _userManager.Users.FirstOrDefaultAsync(x => x.UserName == username);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
+            if (result.Succeeded) return NoContent();
+            return BadRequest("Problem changing password.");
         }
 
         [AllowAnonymous]
@@ -84,13 +114,13 @@ namespace API.Controllers
         {
             var currentUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
             if (currentUser == null) return NoContent();
-            return Ok(CreateUserDto(currentUser));
+            return Ok(await CreateUserDto(currentUser));
         }
         
         [HttpGet]
         public async Task<IActionResult> GetAllUsers([FromQuery] ProfileParams pagingParams)
         {
-            var query = _userManager.Users.OrderBy(u => u.DisplayName).AsQueryable();
+            var query = _userManager.Users.OrderBy(u => u.DisplayName.ToLower()).AsQueryable();
 
             if (!String.IsNullOrWhiteSpace(pagingParams.SearchString)) 
             {
@@ -99,7 +129,7 @@ namespace API.Controllers
 
             var count = await query.CountAsync();
             var totalPages = (int) Math.Ceiling(count/(double)pagingParams.PageSize);
-            var users = query
+            var users = await query
                 .Skip((pagingParams.PageNumber - 1) * pagingParams.PageSize)
                 .Take(pagingParams.PageSize)
                 .ToListAsync();
@@ -114,7 +144,7 @@ namespace API.Controllers
             var user = await _userManager.Users.FirstOrDefaultAsync(u => u.UserName == username);
             if (user == null) return NotFound();
         
-            await _userManager.AddClaimAsync(user, new Claim("canEdit", "canEdit"));
+            await _userManager.AddClaimAsync(user, new Claim("role", "admin"));
             return NoContent();
         }
 
@@ -124,7 +154,7 @@ namespace API.Controllers
             var user = await _userManager.Users.FirstOrDefaultAsync(u => u.UserName == username);
             if (user == null) return NotFound();
 
-            await _userManager.RemoveClaimAsync(user, new Claim("canEdit", "canEdit"));
+            await _userManager.RemoveClaimAsync(user, new Claim("role", "admin"));
             return NoContent();
         }
 
@@ -140,12 +170,15 @@ namespace API.Controllers
 
         private async Task<UserDto> CreateUserDto(AppUser user)
         {
+            var userClaims = await _userManager.GetClaimsAsync(user);
+            
             return new UserDto
             {
                 DisplayName = user.DisplayName,
                 Username = user.UserName,
                 Email = user.Email,
-                Token = await _tokenService.CreateToken(user)
+                Token = await _tokenService.CreateToken(user),
+                Role = userClaims.FirstOrDefault(c => c.Type == "role")?.Value
             };
         }
     }
