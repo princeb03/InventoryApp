@@ -21,7 +21,7 @@ export default observer(function ItemCard({ item }: Props) {
 
     return (
         <Card fluid>
-            <Image as={Link} to={`/items/${item.id}`} src={item.mainPhoto || '/assets/drill.jpeg'} />
+            <Image as={Link} to={`/items/${item.id}`} src={item.mainPhoto || '/assets/image-placeholder.jpg'} />
             <CardContent>
                 <CardHeader 
                     as={Link} 

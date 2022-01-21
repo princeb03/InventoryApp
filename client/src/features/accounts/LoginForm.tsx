@@ -1,13 +1,13 @@
 import { observer } from "mobx-react-lite";
 import { ChangeEvent, useState } from "react";
-import { Button, Form } from "semantic-ui-react";
+import { Button, Form, Header } from "semantic-ui-react";
 import { UserFormValues } from "../../models/user";
 import { useStore } from "../../stores/store";
 
 export default observer(function LoginForm() {
 
     const { userStore } = useStore();
-    const { login } = userStore;
+    const { login, loading } = userStore;
     const initialState: UserFormValues = {
         email: '',
         password: ''
@@ -24,10 +24,11 @@ export default observer(function LoginForm() {
     }
 
     return (
-        <Form onSubmit={handleSubmit}>
+        <Form style={{padding: '2em'}} onSubmit={handleSubmit}>
+            <Header as='h2' content='Login' />
             <Form.Input name="email" value={loginData.email} label="E-mail" onChange={handleChange} required/>
             <Form.Input name="password" type="password" value={loginData.password} label="Password" onChange={handleChange} required/>
-            <Button type="submit" content="Login" positive />
+            <Button fluid loading={loading} type="submit" content="Login" positive />
         </Form>
     )
 });

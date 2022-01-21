@@ -37,7 +37,7 @@ export default observer(function ItemDetails() {
     if (loadingInitial || currentItem === null) return (<LoadingComponent content='Loading Item...' />);
     return (
         <Fragment>
-            <Image src={currentItem?.mainPhoto || '/assets/drill.jpeg'} 
+            <Image src={currentItem?.mainPhoto || '/assets/image-placeholder.jpg'} 
                 floated='right' 
                 size='medium' 
             />
@@ -109,8 +109,8 @@ export default observer(function ItemDetails() {
             }
             
 
-            <Header as='h2' content='Orders'  />
-            <p>To be implemented</p>
+            {/* <Header as='h2' content='Orders'  />
+            <p>To be implemented</p> */}
         </Fragment>
     );
 });

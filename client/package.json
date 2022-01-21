@@ -11,6 +11,7 @@
     "@types/react": "^17.0.33",
     "@types/react-dom": "^17.0.10",
     "axios": "^0.24.0",
+    "date-fns": "^2.28.0",
     "mobx": "^6.3.7",
     "mobx-react-lite": "^3.2.2",
     "react": "^17.0.2",
@@ -29,6 +30,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "postbuild": "move build ../API/wwwroot",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

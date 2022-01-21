@@ -6,6 +6,7 @@ import { User, UserFormValues } from "../models/user";
 import { store } from "./store";
 import { history } from "..";
 import { toast } from "react-toastify";
+import { format } from "date-fns";
 
 export class ProfileStore {
     loading = false;
@@ -89,6 +90,8 @@ export class ProfileStore {
                 };
                 this.pagination = response.pagination;
                 profile.orders.forEach((order) => {
+                    order.orderCompletedAt = format(new Date(order.orderCompletedAt), 'dd MMM yyyy EEEE, p');
+                    order.orderCreatedAt = format(new Date(order.orderCreatedAt), 'dd MMM yyyy EEEE, p');
                     this.orderRegistry.set(order.id, order);
                 });
                 this.loading = false;

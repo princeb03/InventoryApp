@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 import { makeAutoObservable, runInAction } from "mobx"
 import agent from "../api/agent";
 import { CreateOrderDto } from "../models/order";
@@ -54,6 +55,8 @@ export class OrderStore {
         try {
             this.loadingInitial = true;
             const order = await agent.Orders.getOrder(id);
+            order.orderCreatedAt = format(new Date(order.orderCreatedAt), 'dd MMM yyyy EEEE, p');
+            order.orderCompletedAt = format(new Date(order.orderCompletedAt), 'dd MMM yyyy EEEE, p');
             runInAction(() => {
                 this.currentOrder = order;
                 this.loadingInitial = false;

@@ -60,6 +60,7 @@ export class UserStore {
                 this.loading = false;
                 localStorage.setItem('inventoryToken', this.currentUser.token!);
                 history.push('/dashboard');
+                store.modalStore.closeModal();
             });
         } catch(err) {
             console.log(err);

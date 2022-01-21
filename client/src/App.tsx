@@ -13,6 +13,7 @@ import NavBar from './layout/NavBar';
 import { useStore } from './stores/store';
 import UserList from './features/accounts/UserList';
 import ModalContainer from './layout/ModalContainer';
+import PrivateRoute from './layout/PrivateRoute';
 
 function App() {
   const { userStore } = useStore();;
@@ -37,12 +38,12 @@ function App() {
             <NavBar />
             <Container style={{marginTop: '7rem'}}>
               <Switch>
-                <Route exact path="/dashboard" component={Dashboard} />
-                <Route path="/items/:id" component={ItemDetails} />
-                <Route path="/cart" component={OrderCart} />
-                <Route path="/profiles/:username" component={Profile} />
-                <Route path="/orders/:orderId" component={OrderDetails} />
-                <Route path="/users" component={UserList} />
+                <PrivateRoute exact path="/dashboard" component={Dashboard} />
+                <PrivateRoute path="/items/:id" component={ItemDetails} />
+                <PrivateRoute path="/cart" component={OrderCart} />
+                <PrivateRoute path="/profiles/:username" component={Profile} />
+                <PrivateRoute path="/orders/:orderId" component={OrderDetails} />
+                <PrivateRoute path="/users" component={UserList} />
               </Switch>
             </Container>
           </Fragment>

@@ -10,8 +10,10 @@ export interface Profile {
 export interface ProfileOrder {
     id: string;
     orderStatus: string;
-    orderCreatedAt: Date;
-    orderCompletedAt: Date;
+    // orderCreatedAt: Date;
+    // orderCompletedAt: Date;
+    orderCreatedAt: string;
+    orderCompletedAt: string;
     orderItems: ProfileOrderItem[];
     notes: string;
 }
