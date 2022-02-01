@@ -45,7 +45,7 @@ export default observer(function OrderCart() {
                             <Segment key={index}>
                                 <Grid doubling stackable>
                                     <GridColumn width={2} verticalAlign='middle'>
-                                        <Image as={Link} to={`/items/${orderItem.product.id}`} src='/assets/drill.jpeg' />
+                                        <Image as={Link} to={`/items/${orderItem.product.id}`} src={orderItem.product.mainPhoto || '/assets/image-placeholder.jpg'} />
                                     </GridColumn>
                                     <GridColumn width={5} verticalAlign='middle'>
                                         <Header content={orderItem.product.itemName} />
