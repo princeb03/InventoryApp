@@ -42,12 +42,17 @@ namespace API.Extensions
                 }
                 opt.UseNpgsql(connectionStr);
             });
+            // services.AddDbContext<DataContext>(opt => 
+            // {
+            //     opt.UseSqlite(config.GetConnectionString("DefaultConnection"));
+            // });
             services.AddCors(opts =>
             {
                 opts.AddPolicy("CorsPolicy", opts => 
                 {
                     opts.AllowAnyHeader()
                         .AllowAnyMethod()
+                        .AllowCredentials()
                         .WithOrigins("http://localhost:3000");
                 });
             });
